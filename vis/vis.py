@@ -125,9 +125,12 @@ def plot_panel():
         110: '110 kV',
         220: '220 kV'
     }
-    cmap = cm.get_cmap('plasma_r')
-    norm = mcolors.Normalize(vmin=min(voltages), vmax=max(voltages))
-    voltage_colors = {v: cmap(norm(v)) for v in voltages}
+    # Define TP Std colors
+    voltage_colors = {
+        66: 'blue',
+        110: 'red',
+        220: 'orange'
+    }
     national_outline.plot(ax=axs[1, 1], edgecolor='black', facecolor='none', linewidth=.7)
     for voltage in voltages:
         subset = lines[lines['Voltage (kV)'] == voltage]
@@ -337,6 +340,6 @@ if __name__ == "__main__":
 
     plot_panel()
 
-    plot_aggregate_costs()
+    # plot_aggregate_costs()
 
-    plot_sector_costs()
+    # plot_sector_costs()
