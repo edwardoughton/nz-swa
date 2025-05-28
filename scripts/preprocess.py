@@ -9,6 +9,7 @@ January 2025
 # import sys
 import os
 import configparser
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point, MultiPoint, LineString
@@ -20,7 +21,7 @@ from shapely.ops import voronoi_diagram
 from rasterstats import zonal_stats
 import pyproj
 from sklearn.neighbors import BallTree
-import numpy as np
+import networkx as nx
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -532,47 +533,6 @@ def process_lines(country):
     gdf.to_file(output_path)
 
 
-def process_scenario1(country):
-    """
-    
-    """
-    filename = 'population_by_node.gpkg'
-    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
-    path_in = os.path.join(folder, filename)
-    data = gpd.read_file(path_in)
-
-    data['outage'] = 1
-    data['load_shedding'] = 0
-
-    filename = 'scenario1.csv'
-    folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
-    os.makedirs(folder, exist_ok=True)
-    path_out = os.path.join(folder, filename)
-    data.to_csv(path_out)
-
-
-def process_scenario2(country):
-    """
-    
-    """
-    filename = 'population_by_node.gpkg'
-    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
-    path_in = os.path.join(folder, filename)
-    data = gpd.read_file(path_in)
-
-    # Set outage = 1 for rows where island is 'north'
-    data.loc[data['island'] == 'north', 'outage'] = 1
-
-    # Set load_shedding = 1 for rows where island is 'south'
-    data.loc[data['island'] == 'south', 'load_shedding'] = 1
-
-    filename = 'scenario2.csv'
-    folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
-    os.makedirs(folder, exist_ok=True)
-    path_out = os.path.join(folder, filename)
-    data.to_csv(path_out)
-
-
 def process_sioc_lut(country):
     """
     Extract SIOC lookup table
@@ -589,6 +549,284 @@ def process_sioc_lut(country):
     folder = os.path.join(DATA_PROCESSED, 'NZL')
     path_out = os.path.join(folder, filename)
     df.to_csv(path_out, index=False)
+
+
+def process_hydro_locations(country):
+    """
+    Process hydro locations.
+
+    """
+    filename = 'fuel_gen.csv'
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+    data = pd.read_csv(path_in)
+    data = data[data['Fuel_Code'] == 'Hydro']
+
+    # Create geometry column from easting and northing
+    geometry = [Point(xy) for xy in zip(data["NZTM easting"], data["NZTM northing"])]
+
+    # Define the NZTM projection (EPSG:2193 is standard for NZTM2000)
+    gdf = gpd.GeoDataFrame(data, geometry=geometry, crs="EPSG:2193")
+    
+    filename = 'fuel_gen.gpkg'
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    path_out = os.path.join(folder, filename)
+    gdf = gdf.to_crs(epsg=4326)
+    gdf.to_file(path_out)
+
+    return
+
+
+def generate_restoration_sequence(country):
+    """
+    Generate restoration sequence based on hydro locations and transmission lines.
+    """
+
+    # Load hydro sites
+    filename = 'fuel_gen.gpkg'
+    folder = os.path.join(DATA_PROCESSED, country['iso3'])
+    path_in = os.path.join(folder, filename)
+    hydro = gpd.read_file(path_in)
+    hydro = hydro.to_crs(2193)
+    hydro['geometry'] = hydro['geometry'].buffer(10)
+
+    # Load nodes
+    filename = 'population_by_node.gpkg'
+    path_in = os.path.join(folder, filename)
+    nodes = gpd.read_file(path_in)  # Assuming it's a GeoPackage
+    nodes = nodes.to_crs(2193)
+    nodes['restoration_stage'] = None  # Initialize restoration stage
+
+    # Load transmission lines
+    filename = 'transmission_lines.gpkg'
+    path_in = os.path.join(folder, filename)
+    lines = gpd.read_file(path_in)
+    lines = lines.to_crs(2193)
+    lines['geometry'] = lines['geometry'].buffer(100)
+
+    # Step 1: Hydro-intersecting nodes get stage 1
+    stage = 1
+    hydro_nodes = gpd.sjoin(nodes, hydro, predicate='intersects')
+    nodes.loc[hydro_nodes.index, 'restoration_stage'] = stage
+
+    # Build a connectivity graph from lines and nodes
+    G = nx.Graph()
+    for idx, row in nodes.iterrows():
+        G.add_node(idx, geometry=row.geometry)
+
+    for _, line in lines.iterrows():
+        intersecting_nodes = nodes[nodes.intersects(line.geometry)]
+        for i in range(len(intersecting_nodes)):
+            for j in range(i + 1, len(intersecting_nodes)):
+                a, b = intersecting_nodes.index[i], intersecting_nodes.index[j]
+                if not G.has_edge(a, b):
+                    dist = nodes.loc[a].geometry.distance(nodes.loc[b].geometry)
+                    G.add_edge(a, b, weight=dist)
+
+    # BFS to assign restoration stages
+    visited = set(hydro_nodes.index)
+    queue = list(hydro_nodes.index)
+    current_stage = 2
+
+    while queue:
+        next_queue = []
+        for node in queue:
+            for neighbor in G.neighbors(node):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    nodes.at[neighbor, 'restoration_stage'] = current_stage
+                    next_queue.append(neighbor)
+        queue = next_queue
+        current_stage += 1
+
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    path_out = os.path.join(folder, filename)
+    nodes = nodes.to_crs(epsg=4326)
+    nodes.to_file(path_out)
+
+
+def process_scenario1(country):
+    """
+    Write a scenario with a 7-day power outage duration (d1-d7), as follows:
+
+    - d1, d2, d3: full blackout (1 = no power)
+    - d4 to d7: restoration begins, based on the "restoration_stage" column
+    - by d7, all areas have power (0 = power restored)
+
+    """
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = gpd.read_file(path_in)
+
+    # Normalize restoration_stage to [0, 1]
+    data = data.copy()
+    if 'restoration_stage' not in data.columns:
+        raise ValueError("'restoration_stage' column not found in input data")
+
+    data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
+    min_stage = data['restoration_stage'].min()
+    max_stage = data['restoration_stage'].max()
+    data['normalized_stage'] = ((data['restoration_stage'] - min_stage) / (max_stage - min_stage)) ** 0.5
+
+    # Days 1-3: Full blackout
+    for day in range(1, 4):
+        data[f'd{day}'] = 1
+
+    # Days 4-7: Gradual restoration
+    for day in range(4, 8):
+        threshold = (day - 3) / 4  # 0.25 for d4, 0.5 for d5, 0.75 for d6, 1.0 for d7
+        data[f'd{day}'] = (data['normalized_stage'] > threshold).astype(int)
+
+    # Drop helper column
+    data = data.drop(columns=['normalized_stage'])
+
+    # Save to CSV
+    filename = 'scenario1.csv'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(folder, exist_ok=True)
+    path_out = os.path.join(folder, filename)
+    data.to_csv(path_out, index=False)
+
+
+def process_scenario2(country):
+    """
+    Write a scenario with a 7-day power outage duration (d1-d7), as follows:
+
+    South Island (data['island'] == 'south'):
+    - d1-d3: full blackout (1 = no power),
+    - d4-d7: restoration begins, based on the "restoration_stage" column
+    - by d7, all areas have power (0 = power restored)
+
+    North Island (data['island'] == 'north'):
+    - d1-d7: load shedding of 20% (0.2 = load shedding),
+    - by d7, all areas have power (0 = power restored)
+
+    """
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = gpd.read_file(path_in)
+
+    if 'restoration_stage' not in data.columns:
+        raise ValueError("'restoration_stage' column not found in input data")
+    if 'island' not in data.columns:
+        raise ValueError("'island' column not found in input data")
+
+    data = data.copy()
+    data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
+
+    # Normalize restoration stage only for South Island (recovery case)
+    south_mask = data['island'].str.lower() == 'south'
+    data.loc[south_mask, 'normalized_stage'] = (
+        data.loc[south_mask].groupby('island')['restoration_stage'].transform(
+            lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4
+        )
+    )
+
+    # Assign outage values for each day
+    for day in range(1, 8):
+        col = f'd{day}'
+
+        # South Island logic
+        if day <= 3:
+            data.loc[south_mask, col] = 1  # Full blackout
+        else:
+            threshold = (day - 3) / 4  # Gradual recovery d4–d7
+            data.loc[south_mask, col] = (data.loc[south_mask, 'normalized_stage'] > threshold).astype(int)
+
+        # North Island logic
+        if day <= 6:
+            data.loc[~south_mask, col] = 0.2  # Load shedding
+        else:
+            data.loc[~south_mask, col] = 0  # Fully restored
+
+    # Clean up
+    data = data.drop(columns=['normalized_stage'])
+
+    # Save to CSV
+    filename = 'scenario2.csv'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(folder, exist_ok=True)
+    path_out = os.path.join(folder, filename)
+    data.to_csv(path_out, index=False)
+
+
+def process_scenario3(country):
+    """
+    Write a scenario with a 7-day power outage duration (d1-d7), as follows:
+
+    Nodes with max GIC values >500 A fail (e.g., data['GIC [A](max).1'] > 500):
+    - d1-d3: full blackout (1 = no power),
+    - d4-d7: restoration begins, based on the "restoration_stage" column
+    - by d7, all areas have power (0 = power restored)
+
+    For nodes not affected in the North Island (data['island'] == 'north'):
+    - d1-d6: load shedding of 20% (0.2 = partial outage),
+    - d7: all areas have power (0 = power restored)
+    """
+
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = gpd.read_file(path_in)
+
+    data = data.copy()
+
+    # Ensure required columns exist
+    if 'GIC [A](max).1' not in data.columns:
+        raise ValueError("'GIC [A](max).1' column not found in input data")
+    if 'restoration_stage' not in data.columns:
+        raise ValueError("'restoration_stage' column not found in input data")
+    if 'island' not in data.columns:
+        raise ValueError("'island' column not found in input data")
+
+    # Parse columns
+    data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
+    data['GIC_max'] = pd.to_numeric(data['GIC [A](max).1'], errors='coerce')
+
+    # Identify affected nodes
+    fail_mask = data['GIC_max'] > 500
+    north_mask = data['island'].str.lower() == 'north'
+    unaffected_north_mask = ~fail_mask & north_mask
+
+    # Normalize restoration stage for affected (failed) nodes only
+    data.loc[fail_mask, 'normalized_stage'] = (
+        data.loc[fail_mask].groupby('island')['restoration_stage']
+        .transform(lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4)
+    )
+
+    # Initialize all days
+    for day in range(1, 8):
+        col = f'd{day}'
+
+        # Affected nodes (failures)
+        if day <= 3:
+            data.loc[fail_mask, col] = 1  # full blackout
+        else:
+            threshold = (day - 3) / 4  # 0.25, 0.5, 0.75, 1.0 for d4–d7
+            data.loc[fail_mask, col] = (data.loc[fail_mask, 'normalized_stage'] > threshold).astype(int)
+
+        # Unaffected North Island nodes
+        if day <= 6:
+            data.loc[unaffected_north_mask, col] = 0.2  # load shedding
+        else:
+            data.loc[unaffected_north_mask, col] = 0  # fully restored by d7
+
+        # All others (not affected, not north island): assume full power
+        untouched_mask = ~(fail_mask | unaffected_north_mask)
+        data.loc[untouched_mask, col] = 0
+
+    # Clean up
+    data = data.drop(columns=['normalized_stage', 'GIC_max'])
+
+    # Save to CSV
+    filename = 'scenario3.csv'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(folder, exist_ok=True)
+    path_out = os.path.join(folder, filename)
+    data.to_csv(path_out, index=False)
 
 
 if __name__ == "__main__":
@@ -630,11 +868,20 @@ if __name__ == "__main__":
         # print('Process lines')
         # process_lines(country)
 
+        # print('processing process_sioc_lut')
+        # process_sioc_lut(country)
+
+        # print('processing process_hydro_locations')
+        # process_hydro_locations(country)
+
+        # print('processing generate_restoration_sequence')
+        # generate_restoration_sequence(country)
+
         # print('processing process_scenario1')
         # process_scenario1(country)
 
-        # print('processing process_scenario2')
+        # # print('processing process_scenario2')
         # process_scenario2(country)
 
-        print('processing process_sioc_lut')
-        process_sioc_lut(country)
+        print('processing process_scenario3')
+        process_scenario3(country)
