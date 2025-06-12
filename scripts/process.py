@@ -21,14 +21,43 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 RESULTS = os.path.join(BASE_PATH, '..', 'results')
 
 
-def get_scenario_shocks():
+def get_demand_side_scenario_shocks():
     """
-    # shocks = {
-    #     # 'baseline': 1,
-    #     'scenario_1': ((24/8760)*100), #no power for 1 day/24 hours = 0.3% lost demand
-    #     'scenario_2': ((60/8760)*100), #no power for 2.5 days/60 hours = 0.7% lost demand
-    #     'scenario_3': ((120/8760)*100), #no power for 5 days/120 hours = 1.4% lost demand
-    # }
+    
+    """
+    output = {}
+
+    folder = os.path.join(DATA_PROCESSED, 'NZL', 'scenarios')
+    
+    for i in range(1,6):
+
+        filename = f"scenario{i}.csv"
+        data = pd.read_csv(os.path.join(folder, filename))
+        
+        # total_hours = 24 * 365
+        
+        d1 = data['population'] * data['d1']
+        d2 = data['population'] * data['d2']
+        d3 = data['population'] * data['d3']
+        d4 = data['population'] * data['d4']
+        d5 = data['population'] * data['d5']
+        d6 = data['population'] * data['d6']
+
+        # Get numerator
+        total_without_power = d1.sum() + d2.sum() + d3.sum() + d4.sum() + d5.sum() + d6.sum()
+
+        # Get denominator 
+        denominator = data['population'].sum() * 365
+
+        # Percentage of lost demand
+        shock = (total_without_power / denominator) * 100
+        output[f"{filename[:-4]}"] = float(shock)
+
+    return output
+
+
+def get_supply_side_scenario_shocks():
+    """
     
     """
     output = {}
@@ -37,37 +66,40 @@ def get_scenario_shocks():
     
     for i in range(1,8):
 
-        sheetname = f"scenario{i}"
-        sheet = pd.read_excel(os.path.join(folder, 'scenarios.xlsx'), sheet_name=sheetname)
+        filename = f"scenario{i}.csv"
+        data = pd.read_csv(os.path.join(folder, filename))
         
         # total_hours = 24 * 365
+        start_col = 'Accommodation'
+        end_col = 'Wood product manufacturing'  # Assuming you want from 'A' to 'S' inclusive
+        sector_cols = data.loc[:, start_col:end_col].columns
+
+        sector_shocks = {}
+        for sector in sector_cols:
+
+            d1 = data[sector] * data['d1']
+            d2 = data[sector] * data['d2']
+            d3 = data[sector] * data['d3']
+            d4 = data[sector] * data['d4']
+            d5 = data[sector] * data['d5']
+            d6 = data[sector] * data['d6']
+
+            # Get numerator
+            total_sector_shock = d1.sum() + d2.sum() + d3.sum() + d4.sum() + d5.sum() + d6.sum()
+
+            # Get denominator 
+            denominator = data[sector].sum() * 365
+
+            # Percentage of lost demand
+            sector_shock = (total_sector_shock / denominator) * 100
+            sector_shocks[sector] = float(sector_shock)
         
-        d1 = sheet['population'] * sheet['d1']
-        d2 = sheet['population'] * sheet['d2']
-        d3 = sheet['population'] * sheet['d3']
-        d4 = sheet['population'] * sheet['d4']
-        d5 = sheet['population'] * sheet['d5']
-        d6 = sheet['population'] * sheet['d6']
-
-        # Get numerator
-        total_without_power = d1.sum() + d2.sum() + d3.sum() + d4.sum() + d5.sum() + d6.sum()
-
-        # Get denominator 
-        denominator = sheet['population'].sum() * 365
-
-        # Percentage of lost demand
-        shock = (total_without_power / denominator) * 100
-        output[f"{sheetname}"] = float(shock)
-
-    filename = 'population_by_node.gpkg'
-    folder = os.path.join(DATA_PROCESSED, 'NZL')
-    path_in = os.path.join(folder, filename)
-    data = gpd.read_file(path_in)
+        output[f"{filename[:-4]}"] = sector_shocks
 
     return output
 
 
-def process_shocks(iso3, scenario_name, shock):
+def process_demand_shocks(iso3, scenario_name, shock):
     """
     Processes New Zealand Input-Output data and estimates GDP loss due to a shock.
 
@@ -178,6 +210,109 @@ def process_shocks(iso3, scenario_name, shock):
 
     # print(round(combined_losses['Direct Loss'].sum()), round(combined_losses['Indirect Loss'].sum()), round(combined_losses['Total Loss'].sum()))
 
+
+def process_supply_shocks(iso3, scenario_name, supply_shocks):
+    """
+    Processes Input-Output data and estimates GDP loss due to a supply-side shock 
+    using the Ghosh model.
+
+    Parameters
+    ----------
+    iso3 : str
+        Country code (e.g. 'NZL').
+    scenario_name : str
+        Name of the scenario.
+    supply_shocks : dict
+        Dictionary of percent shocks (0–100) by sector (e.g., {'A': 10.5, ...}).
+    """
+    print(f"Running Ghosh model for {scenario_name}...")
+
+    # Load input file
+    filename = "national-accounts-input-output-tables-year-ended-march-2020-revised-22-december-2021.xlsx"
+    folder = os.path.join(BASE_PATH, 'raw')
+    df = pd.read_excel(os.path.join(folder, filename), sheet_name='4 Transactions', header=5)
+
+    # Extract inter-industry transaction matrix (first 109 rows and columns)
+    transactions = df.iloc[0:109, 1:110]
+    transactions.index = df.iloc[0:109, 0]
+    transactions.columns = transactions.index
+    transactions = transactions.apply(pd.to_numeric, errors='coerce').fillna(0)
+    transactions.to_csv(os.path.join(BASE_PATH, 'processed', 'transactions.csv'))
+
+    # Extract value-added vector (VA)
+    VA_row = df[df['Unnamed: 0'] == 'Total value added'].iloc[0, 1:110]
+    VA = pd.Series(VA_row.values, index=transactions.columns).apply(pd.to_numeric, errors='coerce')
+    VA.to_csv(os.path.join(BASE_PATH, 'processed', 'value_added.csv'))
+
+    # Compute total output from the model
+    total_output = transactions.sum(axis=0) + VA
+
+    # Compute Ghosh B matrix
+    B_matrix = transactions.div(total_output, axis=1).fillna(0)
+    B_matrix.to_csv(os.path.join(BASE_PATH, 'processed', 'B_matrix.csv'))
+
+    # Ghosh inverse
+    B_np = B_matrix.values
+    I = np.eye(B_np.shape[0])
+    G_inv = np.linalg.inv(I - B_np.T)
+    G_inv_df = pd.DataFrame(G_inv, index=B_matrix.index, columns=B_matrix.columns)
+    G_inv_df.to_csv(os.path.join(BASE_PATH, 'processed', 'Ghosh_inverse.csv'))
+
+    # Recalculate internally consistent baseline output
+    VA_aligned = VA.reindex(G_inv_df.columns).fillna(0)
+    baseline_output = G_inv_df @ VA_aligned
+    baseline_output = pd.Series(baseline_output, index=G_inv_df.index)
+
+    # Prepare supply shock factors (as retained output shares)
+    shock_factors = pd.Series({k: max(0.0, 1.0 - v / 100.0) for k, v in supply_shocks.items()})
+    shock_factors = shock_factors.reindex(VA.index).fillna(1.0)
+    shock_factors.to_csv(os.path.join(RESULTS, f'shock_factors_{scenario_name}.csv'))
+
+    # Apply shocks to VA
+    shocked_VA = VA * shock_factors
+    shocked_VA.to_csv(os.path.join(RESULTS, f'shocked_value_added_{scenario_name}.csv'))
+
+    # Direct GDP loss
+    direct_loss = (VA - shocked_VA).clip(lower=0)
+    direct_loss_total = direct_loss.sum()
+
+    # Compute shocked output
+    shocked_VA_aligned = shocked_VA.reindex(G_inv_df.columns).fillna(0)
+    shocked_output = G_inv_df @ shocked_VA_aligned
+    shocked_output_series = pd.Series(shocked_output, index=G_inv_df.index)
+    shocked_output_series.to_csv(os.path.join(RESULTS, f'gross_output_{scenario_name}.csv'))
+
+    # Calculate output loss
+    combined = pd.DataFrame({
+        'Original Output': baseline_output,
+        'Shocked Output': shocked_output_series
+    })
+    combined['Loss'] = (combined['Original Output'] - combined['Shocked Output']).clip(lower=0)
+    combined['Description'] = combined.index
+
+    # Merge with sector codes
+    lut = pd.read_csv(os.path.join(DATA_PROCESSED, iso3, 'nzsioc_lut.csv'))
+    combined = combined.reset_index().merge(lut, left_on='Description', right_on='Description', how='left')
+    combined = combined[['Description', 'NZSIOC', 'Original Output', 'Shocked Output', 'Loss']]
+    combined.to_csv(os.path.join(RESULTS, f'supply_side_losses_{scenario_name}.csv'), index=False)
+
+    # Merge sector-level direct and indirect losses
+    direct_loss = direct_loss.reindex(combined['Description']).reset_index(drop=True)
+    combined['Direct Loss'] = direct_loss
+    combined['Indirect Loss'] = (combined['Loss'] - combined['Direct Loss']).clip(lower=0)
+
+    # Save sector-level losses
+    combined[['Description', 'NZSIOC', 'Direct Loss', 'Indirect Loss', 'Loss']].to_csv(
+        os.path.join(RESULTS, f'gdp_loss_by_sector_{scenario_name}.csv'), index=False
+    )
+
+    # Also write summary totals
+    with open(os.path.join(RESULTS, f'gdp_loss_summary_{scenario_name}.csv'), 'w') as f:
+        f.write(f"Direct GDP loss: {round(combined['Direct Loss'].sum(), 2)} million NZD\\n")
+        f.write(f"Indirect GDP loss: {round(combined['Indirect Loss'].sum(), 2)} million NZD\\n")
+        f.write(f"Total GDP loss: {round(combined['Loss'].sum(), 2)} million NZD\\n")
+
+
 if __name__ == "__main__":
 
     if not os.path.exists(RESULTS):
@@ -185,8 +320,14 @@ if __name__ == "__main__":
 
     iso3 = 'NZL'
 
-    shocks = get_scenario_shocks()
+    # shocks_demand = get_demand_side_scenario_shocks()
 
-    for scenario_name, shock in shocks.items():
+    # for scenario_name, shock in shocks_demand.items():
+    #     process_demand_shocks(iso3, scenario_name, shock)
 
-        process_shocks(iso3, scenario_name, shock)
+    shocks_supply = get_supply_side_scenario_shocks()
+
+    for scenario_name, shocks in shocks_supply.items():
+        # if not scenario_name == 'scenario1':
+        #     continue
+        process_supply_shocks(iso3, scenario_name, shocks)
