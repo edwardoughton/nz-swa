@@ -12,8 +12,8 @@ import configparser
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Point, MultiPoint, LineString
-from shapely.ops import unary_union
+from shapely.geometry import Point, MultiPoint, LineString, MultiPolygon
+from shapely.ops import nearest_points
 import rasterio
 from rasterio.mask import mask
 import json
@@ -53,8 +53,8 @@ def process_regions(iso3, level):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        if os.path.exists(path_processed):
-            continue
+        # if os.path.exists(path_processed):
+        #     continue
 
         print('Processing GID_{} region shapes'.format(regional_level))
 
@@ -64,6 +64,7 @@ def process_regions(iso3, level):
         filename = 'gadm36_{}.shp'.format(regional_level)
         path_regions = os.path.join(DATA_RAW, 'gadm36_levels_shp', filename)
         regions = gpd.read_file(path_regions)
+        regions = regions.to_crs(27200)
 
         regions = regions[regions.GID_0 == iso3]
 
@@ -71,7 +72,7 @@ def process_regions(iso3, level):
         # regions["geometry"] = regions.geometry.simplify(
         #     tolerance=0.005, preserve_topology=True)
 
-        # regions['geometry'] = regions.apply(remove_small_shapes, axis=1)
+        regions['geometry'] = regions.apply(remove_small_shapes, axis=1)
 
         glob_info_path = os.path.join(BASE_PATH, 'countries.csv')
         load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1",
@@ -79,17 +80,56 @@ def process_regions(iso3, level):
         regions = regions.merge(
             load_glob_info, left_on='GID_0', right_on='iso3')
     
-        if regional_level == 2:
-            exclude_names = ['Chatham Islands', 'Northern Islands', 'Southern Islands']
-            regions = regions[~regions['NAME_1'].isin(exclude_names)]
-        try:
-            regions.to_file(path_processed, driver='ESRI Shapefile')
-        except:
-            print('Unable to write {}'.format(filename))
-            pass
+        # if regional_level == 2:
+        exclude_names = ['Chatham Islands', 'Northern Islands', 'Southern Islands']
+        regions = regions[~regions['NAME_1'].isin(exclude_names)]
 
-    return
+        regions = regions.to_crs(4326)  
+        regions.to_file(path_processed, driver='ESRI Shapefile')
 
+
+def remove_small_shapes(x):
+    """
+    Remove small multipolygon shapes.
+
+    Parameters
+    ---------
+    x : polygon
+        Feature to simplify.
+
+    Returns
+    -------
+    MultiPolygon : MultiPolygon
+        Shapely MultiPolygon geometry without tiny shapes.
+
+    """
+    # if its a single polygon, just return the polygon geometry
+    if x.geometry.geom_type == 'Polygon':
+        return x.geometry
+    
+    # if its a multipolygon, we start trying to simplify
+    # and remove shapes if its too big.
+    elif x.geometry.geom_type == 'MultiPolygon':
+
+        area1 = 0.01
+        area2 = 50
+
+        if x.geometry.area < area1:
+            return x.geometry
+
+        elif x.geometry.area > area2:
+            threshold = 10000000
+        else:
+            threshold = 100000
+
+        # save remaining polygons as new multipolygon 
+        new_geom = []
+        for y in x.geometry.geoms:
+            if y.area > threshold:
+                new_geom.append(y)
+
+        return MultiPolygon(new_geom)
+    
 
 def process_country_shapes(iso3):
     """
@@ -103,8 +143,8 @@ def process_country_shapes(iso3):
     """
     path = os.path.join(DATA_PROCESSED, iso3)
 
-    if os.path.exists(os.path.join(path, 'national_outline.shp')):
-        return 'Completed national outline processing'
+    # if os.path.exists(os.path.join(path, 'national_outline.shp')):
+    #     return 'Completed national outline processing'
 
     print('Processing country shapes')
 
@@ -115,13 +155,16 @@ def process_country_shapes(iso3):
 
     path = os.path.join(path, 'regions', 'regions_2_NZL.shp')
     country = gpd.read_file(path)
-
-    national_outline = country.dissolve(by='GID_0')
+    country = country.to_crs(27200)
+    country = country.explode(index_parts=True, ignore_index=True)
+    area_threshold = 10000000  # in square meters
+    country = country[country.geometry.area > area_threshold].reset_index(drop=True)
+    country = country.dissolve(by='GID_0')
 
     # Optionally, reset the index and drop the dummy column
-    national_outline = national_outline.reset_index(drop=True)
-
-    national_outline.to_file(shape_path)
+    country = country.reset_index(drop=True)
+    country = country.to_crs(4326)
+    country.to_file(shape_path)
 
     return
 
@@ -462,14 +505,14 @@ def estimate_population_by_node(country):
     folder = os.path.join(BASE_PATH, 'raw')
     path_in = os.path.join(folder, filename)
     lut = pd.read_csv(path_in)
-    lut = lut[['substation name','island']]
+    lut = lut[['substation name','island','islanding']]
     nodes = pd.merge(nodes, lut, left_on='substation name', right_on='substation name')
 
     # Allocate substation GIC for Quebec 89
-    filename = 'Transformer and substation extreme storm GIC.xlsx'
+    filename = 'Transformer and substation extreme storm GIC_v3.xlsx'
     folder = os.path.join(BASE_PATH, 'raw')
     path_in = os.path.join(folder, filename)
-    lut = pd.read_excel(path_in, header=4, usecols=[4,5,6])
+    lut = pd.read_excel(path_in, header=4, usecols=[10,11,12,13,14,15,16,17,18])
     lut = lut[:91]
     lut['Substation'] = lut['Substation'].str.replace("'", "", regex=False)
     nodes = pd.merge(nodes, lut, left_on='location', right_on='Substation', how='left')
@@ -577,11 +620,141 @@ def process_hydro_locations(country):
     return
 
 
+def process_employment_data(country):
+    """
+    
+    """
+    filename = 'geographic-units-by-industry-and-statistical-area-2000-2024-descending-order-february-2024.csv'
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+    data = pd.read_csv(path_in)
+
+    # Get 2024
+    data = data[data['year'] == 2024]
+
+    # # Get sectors
+    # # sectors_list = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S'] #,'T','U','V','X','W','Y','Z']
+    # # data = data[data['anzsic06'].isin(sectors_list)]
+    # data['anzsic06'] = data['anzsic06'].astype(str)
+    # data = data[data['anzsic06'].str.len() == 4]
+
+    filename = 'anzsic_concordance_table.xlsx'
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+    concordance_table = pd.read_excel(path_in, header=9)
+    concordance_table = concordance_table[['ANZSIC06','Target Code']]
+
+    filename = 'anzsic_industry_groupings.xlsx'
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+    concordance_table2 = pd.read_excel(path_in)
+    
+    concordance_table = pd.merge(concordance_table, concordance_table2, left_on='Target Code', right_on='industry_groupings', how='inner')
+
+    data = pd.merge(data, concordance_table, left_on='anzsic06', right_on='ANZSIC06', how='inner')
+
+    # Get statistical areas 2 (SA2)
+    data = data[data['Area'].str.startswith('A')]
+
+    filename = 'employment_lut.csv'
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    path_out = os.path.join(folder, filename)
+    data.to_csv(path_out, index=False)
+
+
+def process_sa2_to_node_lut(country):
+    """
+    Find the closest node for each SA2 boundary.
+    
+    Export a .csv which maps the sa2_boundaries['SA22023_V1'] with the closest node id in gdf as nodes['location']
+    """
+    # Load SA2 boundaries
+    filename = 'statistical-area-2-2023-generalised.shp'
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+    sa2_boundaries = gpd.read_file(path_in)
+    sa2_boundaries = sa2_boundaries.to_crs(2193)
+    sa2_boundaries = sa2_boundaries[['geometry', 'SA22023_V1', 'SA22023__1']]
+
+    # Filter out invalid or missing geometries
+    sa2_boundaries = sa2_boundaries[
+        sa2_boundaries['geometry'].notna() & sa2_boundaries['geometry'].is_valid
+    ].copy()
+
+    # Apply representative point safely
+    sa2_boundaries['geometry'] = sa2_boundaries['geometry'].apply(
+        lambda geom: geom.representative_point()
+    )
+
+    # Load nodes
+    filename = 'population_by_node.gpkg'
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    path_in = os.path.join(folder, filename)
+    nodes = gpd.read_file(path_in)
+    nodes = nodes.to_crs(2193)
+
+    # Build spatial index
+    nodes_sindex = nodes.sindex
+
+    # Nearest node finder
+    def find_nearest_node(point):
+        idx = list(nodes_sindex.nearest([point], return_all=False))[1]
+        return nodes.loc[idx, 'location'].values[0]
+
+    # Apply to each SA2 point geometry
+    sa2_boundaries['nearest_node'] = sa2_boundaries['geometry'].apply(find_nearest_node)
+
+    # Export to CSV
+    output_df = sa2_boundaries[['SA22023_V1', 'nearest_node']]
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    output_path = os.path.join(folder, f'sa2_to_node_lut_{country['iso3']}.csv')
+    output_df.to_csv(output_path, index=False)
+
+
+def get_employment_by_node(country):
+    """
+    
+    """
+    filename = 'employment_lut.csv'
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = pd.read_csv(path_in)
+    data['Area'] = data['Area'].str.replace('A','')
+    data = data[['sector_name','Area','ec_count']]
+
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    path_in = os.path.join(folder, f'sa2_to_node_lut_{country['iso3']}.csv')
+    node_lut = pd.read_csv(path_in)
+    node_lut['SA22023_V1'] = node_lut['SA22023_V1'].astype(str)
+
+    merged = pd.merge(data, node_lut, left_on='Area', right_on='SA22023_V1', how='inner')
+
+    merged = merged[['sector_name','ec_count','nearest_node']]
+
+    employment_by_node = merged.groupby(['nearest_node', 'sector_name'], as_index=False)['ec_count'].sum()
+
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    output_path = os.path.join(folder, 'employment_per_node.csv')
+    employment_by_node.to_csv(output_path, index=False)
+
+    pivot_df = employment_by_node.pivot(index="nearest_node", columns="sector_name", values="ec_count").reset_index()
+
+    # Load nodes
+    filename = 'population_by_node.gpkg'
+    path_in = os.path.join(folder, filename)
+    nodes = gpd.read_file(path_in)  # Assuming it's a GeoPackage
+    nodes = pd.merge(nodes, pivot_df, left_on='location', right_on='nearest_node', how='inner')
+
+    # output
+    output_path = os.path.join(BASE_PATH, 'processed', 'NZL', 'employment_by_node.gpkg')
+    nodes.to_file(output_path)
+
+
 def generate_restoration_sequence(country):
     """
     Generate restoration sequence based on hydro locations and transmission lines.
-    """
 
+    """
     # Load hydro sites
     filename = 'fuel_gen.gpkg'
     folder = os.path.join(DATA_PROCESSED, country['iso3'])
@@ -591,7 +764,7 @@ def generate_restoration_sequence(country):
     hydro['geometry'] = hydro['geometry'].buffer(10)
 
     # Load nodes
-    filename = 'population_by_node.gpkg'
+    filename = 'employment_by_node.gpkg'
     path_in = os.path.join(folder, filename)
     nodes = gpd.read_file(path_in)  # Assuming it's a GeoPackage
     nodes = nodes.to_crs(2193)
@@ -638,6 +811,8 @@ def generate_restoration_sequence(country):
                     next_queue.append(neighbor)
         queue = next_queue
         current_stage += 1
+
+    nodes = nodes.drop(['Substation','nearest_node'], axis=1)
 
     filename = 'restoration_sequence.gpkg'
     folder = os.path.join(DATA_PROCESSED, 'NZL')
@@ -755,18 +930,96 @@ def process_scenario2(country):
 
 def process_scenario3(country):
     """
-    Write a scenario with a 7-day power outage duration (d1-d7), as follows:
-
-    Nodes with max GIC values >500 A fail (e.g., data['GIC [A](max).1'] > 500):
-    - d1-d3: full blackout (1 = no power),
-    - d4-d7: restoration begins, based on the "restoration_stage" column
-    - by d7, all areas have power (0 = power restored)
-
-    For nodes not affected in the North Island (data['island'] == 'north'):
-    - d1-d6: load shedding of 20% (0.2 = partial outage),
-    - d7: all areas have power (0 = power restored)
+    Generates a 7-day power outage scenario based on GIC impact and island region:
+    
+    - Nodes with GIC > 500 A:
+        - d1–d3: full blackout (1)
+        - d4–d7: gradual restoration via 'restoration_stage'
+        - d7: fully restored (0)
+        
+    - Nodes in the North Island not affected:
+        - d1–d6: 20% load shedding (0.2)
+        - d7: fully restored (0)
+        
+    - All others:
+        - d1–d7: fully powered (0)
     """
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = gpd.read_file(path_in).copy()
 
+    # Validate columns
+    required_cols = ['GIC [A](max)_baseline', 'restoration_stage', 'island']
+    for col in required_cols:
+        if col not in data.columns:
+            raise ValueError(f"'{col}' column not found in input data")
+
+    # Parse columns
+    data['GIC_max'] = pd.to_numeric(data['GIC [A](max)_baseline'], errors='coerce')
+    data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
+    data['island'] = data['island'].str.lower()
+
+    # Define masks
+    fail_mask = data['GIC_max'] > 500
+    north_mask = data['island'] == 'north'
+    unaffected_north_mask = north_mask & ~fail_mask
+    unaffected_other_mask = ~fail_mask & ~north_mask
+
+    # Normalize restoration stages only for affected nodes
+    data['normalized_stage'] = None
+    if fail_mask.any():
+        data.loc[fail_mask, 'normalized_stage'] = (
+            data.loc[fail_mask]
+            .groupby('island')['restoration_stage']
+            .transform(lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4)
+        )
+
+    # Initialize power status day-by-day
+    for day in range(1, 8):
+        col = f'd{day}'
+
+        # Default: full power
+        data[col] = 0.0
+
+        # Load shedding for unaffected North Island
+        if day <= 6:
+            data.loc[unaffected_north_mask, col] = 0.2
+
+        # Full blackout for failed nodes (d1–d3)
+        if day <= 3:
+            data.loc[fail_mask, col] = 1
+        else:
+            threshold = (day - 3) / 4  # d4=0.25, d5=0.5, etc.
+            data.loc[fail_mask, col] = (
+                data.loc[fail_mask, 'normalized_stage'].astype(float) > threshold
+            ).astype(int)
+
+    # Cleanup
+    data.drop(columns=['normalized_stage', 'GIC_max'], inplace=True)
+
+    # Save output
+    out_folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(out_folder, exist_ok=True)
+    path_out = os.path.join(out_folder, 'scenario3.csv')
+    data.to_csv(path_out, index=False)
+
+
+def process_scenario4(country):
+    """
+    Generates a 7-day power outage scenario using GIC values (switching variant):
+
+    - Nodes with GIC > 500 A:
+        - d1–d3: full blackout (1)
+        - d4–d7: gradual restoration using 'restoration_stage'
+        - d7: fully restored (0)
+
+    - Unaffected North Island nodes:
+        - d1–d6: 20% load shedding (0.2)
+        - d7: fully restored (0)
+
+    - Others (not affected, not in North Island): always have power (0)
+    """
     filename = 'restoration_sequence.gpkg'
     folder = os.path.join(BASE_PATH, 'processed', 'NZL')
     path_in = os.path.join(folder, filename)
@@ -774,58 +1027,306 @@ def process_scenario3(country):
 
     data = data.copy()
 
-    # Ensure required columns exist
-    if 'GIC [A](max).1' not in data.columns:
-        raise ValueError("'GIC [A](max).1' column not found in input data")
-    if 'restoration_stage' not in data.columns:
-        raise ValueError("'restoration_stage' column not found in input data")
-    if 'island' not in data.columns:
-        raise ValueError("'island' column not found in input data")
+    # Check required columns
+    required_cols = ['GIC [A](max)_switching', 'restoration_stage', 'island']
+    for col in required_cols:
+        if col not in data.columns:
+            raise ValueError(f"'{col}' column not found in input data")
 
-    # Parse columns
+    # Parse and clean data
+    data['GIC_max'] = pd.to_numeric(data['GIC [A](max)_switching'], errors='coerce')
     data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
-    data['GIC_max'] = pd.to_numeric(data['GIC [A](max).1'], errors='coerce')
+    data['island'] = data['island'].str.lower()
 
-    # Identify affected nodes
+    # Identify node masks
     fail_mask = data['GIC_max'] > 500
-    north_mask = data['island'].str.lower() == 'north'
+    north_mask = data['island'] == 'north'
     unaffected_north_mask = ~fail_mask & north_mask
+    unaffected_other_mask = ~fail_mask & ~north_mask
 
-    # Normalize restoration stage for affected (failed) nodes only
-    data.loc[fail_mask, 'normalized_stage'] = (
-        data.loc[fail_mask].groupby('island')['restoration_stage']
-        .transform(lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4)
-    )
+    # Normalize restoration stage ONLY for affected nodes
+    data['normalized_stage'] = None
+    if fail_mask.any():
+        norm_stage = (
+            data.loc[fail_mask]
+            .groupby('island')['restoration_stage']
+            .transform(lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4)
+        )
+        data.loc[fail_mask, 'normalized_stage'] = norm_stage
 
-    # Initialize all days
+    # Assign day-by-day outage scenario
     for day in range(1, 8):
         col = f'd{day}'
+
+        # Default: full power
+        data[col] = 0.0
+
+        # Unaffected North Island nodes
+        if day <= 6:
+            data.loc[unaffected_north_mask, col] = 0.2
+        else:
+            data.loc[unaffected_north_mask, col] = 0
 
         # Affected nodes (failures)
         if day <= 3:
             data.loc[fail_mask, col] = 1  # full blackout
         else:
-            threshold = (day - 3) / 4  # 0.25, 0.5, 0.75, 1.0 for d4–d7
-            data.loc[fail_mask, col] = (data.loc[fail_mask, 'normalized_stage'] > threshold).astype(int)
-
-        # Unaffected North Island nodes
-        if day <= 6:
-            data.loc[unaffected_north_mask, col] = 0.2  # load shedding
-        else:
-            data.loc[unaffected_north_mask, col] = 0  # fully restored by d7
-
-        # All others (not affected, not north island): assume full power
-        untouched_mask = ~(fail_mask | unaffected_north_mask)
-        data.loc[untouched_mask, col] = 0
+            threshold = (day - 3) / 4  # d4=0.25, d5=0.5, etc.
+            data.loc[fail_mask, col] = (
+                data.loc[fail_mask, 'normalized_stage'].astype(float) > threshold
+            ).astype(int)
 
     # Clean up
     data = data.drop(columns=['normalized_stage', 'GIC_max'])
 
-    # Save to CSV
-    filename = 'scenario3.csv'
-    folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
-    os.makedirs(folder, exist_ok=True)
-    path_out = os.path.join(folder, filename)
+    # Output
+    filename = 'scenario4.csv'
+    out_folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(out_folder, exist_ok=True)
+    path_out = os.path.join(out_folder, filename)
+    data.to_csv(path_out, index=False)
+
+
+def process_scenario5(country):
+    """
+    7-day outage scenario with GIC > 500 A failures and islanding exceptions.
+
+    - Affected nodes: GIC > 500 A and not protected by islanding
+        - d1–d3: full blackout (1)
+        - d4–d7: restoration via 'restoration_stage'
+        - d7: fully restored (0)
+
+    - Unaffected North Island nodes:
+        - d1–d6: 20% load shedding (0.2)
+        - d7: fully restored (0)
+
+    - All others: full power (0)
+    """
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = gpd.read_file(path_in).copy()
+
+    # Ensure necessary columns are present
+    required_columns = ['GIC [A](max)_switching', 'restoration_stage', 'island', 'islanding']
+    for col in required_columns:
+        if col not in data.columns:
+            raise ValueError(f"'{col}' column not found in input data")
+
+    # Clean and parse
+    data['GIC_max'] = pd.to_numeric(data['GIC [A](max)_switching'], errors='coerce')
+    data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
+    data['island'] = data['island'].str.lower()
+    data['islanding'] = data['islanding'].str.lower()
+
+    # Define protected tags
+    protected_tags = {
+        'waitaki-oamaru', 'gore-dunedin',
+        'kikiwa-greymouth', 'manapouri-invercargill'
+    }
+
+    # Determine failed nodes (high GIC and not protected)
+    fail_mask = (data['GIC_max'] > 500) & ~data['islanding'].isin(protected_tags)
+
+    # Determine unaffected North Island nodes
+    north_mask = data['island'] == 'north'
+    unaffected_north_mask = ~fail_mask & north_mask
+    unaffected_other_mask = ~fail_mask & ~north_mask
+
+    # Normalize restoration only for failed nodes
+    data['normalized_stage'] = None
+    if fail_mask.any():
+        data.loc[fail_mask, 'normalized_stage'] = (
+            data.loc[fail_mask]
+            .groupby('island')['restoration_stage']
+            .transform(lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4)
+        )
+
+    # Assign scenario day-by-day
+    for day in range(1, 8):
+        col = f'd{day}'
+
+        # Default: full power
+        data[col] = 0.0
+
+        # North Island load shedding
+        if day <= 6:
+            data.loc[unaffected_north_mask, col] = 0.2
+        else:
+            data.loc[unaffected_north_mask, col] = 0
+
+        # Affected nodes
+        if day <= 3:
+            data.loc[fail_mask, col] = 1
+        else:
+            threshold = (day - 3) / 3
+            data.loc[fail_mask, col] = (
+                data.loc[fail_mask, 'normalized_stage'].astype(float) > threshold
+            ).astype(int)
+
+    # Final cleanup
+    data.drop(columns=['normalized_stage', 'GIC_max'], inplace=True)
+
+    # Save output
+    out_folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(out_folder, exist_ok=True)
+    out_path = os.path.join(out_folder, 'scenario5.csv')
+    data.to_csv(out_path, index=False)
+
+
+def process_scenario6(country):
+    """
+    6-day outage scenario using GIC [A](max)_blocker1.
+
+    - Affected nodes (GIC > 500 A):
+        - d1–d3: full blackout (1)
+        - d4-d5: staged restoration via 'restoration_stage'
+        - d6: fully restored (0)
+
+    - Unaffected North Island nodes:
+        - d1–d6: 20% load shedding (0.2)
+        - d6: fully restored (0)
+
+    - Others: always have power (0)
+    """
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = gpd.read_file(path_in).copy()
+
+    # Validate required columns
+    required_cols = ['GIC [A](max)_blocker1', 'restoration_stage', 'island']
+    for col in required_cols:
+        if col not in data.columns:
+            raise ValueError(f"'{col}' column not found in input data")
+
+    # Parse and clean
+    data['GIC_max'] = pd.to_numeric(data['GIC [A](max)_blocker1'], errors='coerce')
+    data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
+    data['island'] = data['island'].str.lower()
+
+    # Identify node categories
+    fail_mask = data['GIC_max'] > 500
+    north_mask = data['island'] == 'north'
+    unaffected_north_mask = ~fail_mask & north_mask
+    unaffected_other_mask = ~fail_mask & ~north_mask
+
+    # Normalize restoration stage only for affected nodes
+    data['normalized_stage'] = None
+    if fail_mask.any():
+        data.loc[fail_mask, 'normalized_stage'] = (
+            data.loc[fail_mask]
+            .groupby('island')['restoration_stage']
+            .transform(lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4)
+        )
+
+    # Assign power status day-by-day
+    for day in range(1, 8):
+        col = f'd{day}'
+
+        # Default: full power
+        data[col] = 0.0
+
+        # Load shedding for unaffected North Island
+        if day <= 5:
+            data.loc[unaffected_north_mask, col] = 0.2
+        else:
+            data.loc[unaffected_north_mask, col] = 0
+
+        # Affected nodes
+        if day <= 3:
+            data.loc[fail_mask, col] = 1
+        else:
+            threshold = (day - 3) / 2 
+            data.loc[fail_mask, col] = (
+                data.loc[fail_mask, 'normalized_stage'].astype(float) > threshold
+            ).astype(int)
+
+    # Cleanup
+    data.drop(columns=['normalized_stage', 'GIC_max'], inplace=True)
+
+    # Save output
+    out_folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(out_folder, exist_ok=True)
+    path_out = os.path.join(out_folder, 'scenario6.csv')
+    data.to_csv(path_out, index=False)
+
+
+def process_scenario7(country):
+    """
+    4-day outage scenario using GIC [A](max)_blocker2 values.
+
+    - Affected nodes (GIC > 500 A):
+        - d1–d3: full blackout (1)
+        - d4: staged restoration via 'restoration_stage'
+        - d5: fully restored (0)
+
+    - Unaffected North Island nodes:
+        - d1–d4: 20% load shedding (0.2)
+        - d5: fully restored (0)
+
+    - All others: always have power (0)
+    """
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(BASE_PATH, 'processed', 'NZL')
+    path_in = os.path.join(folder, filename)
+    data = gpd.read_file(path_in).copy()
+
+    # Validate required columns
+    required_cols = ['GIC [A](max)_blocker2', 'restoration_stage', 'island']
+    for col in required_cols:
+        if col not in data.columns:
+            raise ValueError(f"'{col}' column not found in input data")
+
+    # Parse and clean data
+    data['GIC_max'] = pd.to_numeric(data['GIC [A](max)_blocker2'], errors='coerce')
+    data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
+    data['island'] = data['island'].str.lower()
+
+    # Identify masks
+    fail_mask = data['GIC_max'] > 500
+    north_mask = data['island'] == 'north'
+    unaffected_north_mask = ~fail_mask & north_mask
+    unaffected_other_mask = ~fail_mask & ~north_mask
+
+    # Normalize restoration stage for affected nodes only
+    data['normalized_stage'] = None
+    if fail_mask.any():
+        data.loc[fail_mask, 'normalized_stage'] = (
+            data.loc[fail_mask]
+            .groupby('island')['restoration_stage']
+            .transform(lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4)
+        )
+
+    # 6-day scenario: d1 to d6
+    for day in range(1, 8):
+        col = f'd{day}'
+        
+        # Default: full power
+        data[col] = 0.0
+
+        # Unaffected North Island nodes
+        if day <= 4:
+            data.loc[unaffected_north_mask, col] = 0.2
+        else:
+            data.loc[unaffected_north_mask, col] = 0
+
+        # Affected nodes
+        if day <= 3:
+            data.loc[fail_mask, col] = 1  # full blackout
+        else:
+            threshold = (day - 3) / 1  # d3=0.33, d4=0.66, d5=1.0
+            data.loc[fail_mask, col] = (
+                data.loc[fail_mask, 'normalized_stage'].astype(float) > threshold
+            ).astype(int)
+
+    # Clean up
+    data.drop(columns=['normalized_stage', 'GIC_max'], inplace=True)
+
+    # Save
+    out_folder = os.path.join(BASE_PATH, 'processed', 'NZL', 'scenarios')
+    os.makedirs(out_folder, exist_ok=True)
+    path_out = os.path.join(out_folder, 'scenario7.csv')
     data.to_csv(path_out, index=False)
 
 
@@ -874,14 +1375,35 @@ if __name__ == "__main__":
         # print('processing process_hydro_locations')
         # process_hydro_locations(country)
 
+        # print('processing process_employment_data')
+        # process_employment_data(country)
+
+        # print('processing process_sa2_to_node_lut')
+        # process_sa2_to_node_lut(country)
+
+        # print('processing get_employment_by_node')
+        # get_employment_by_node(country)
+
         # print('processing generate_restoration_sequence')
         # generate_restoration_sequence(country)
 
         # print('processing process_scenario1')
         # process_scenario1(country)
 
-        # # print('processing process_scenario2')
+        # print('processing process_scenario2')
         # process_scenario2(country)
 
         print('processing process_scenario3')
         process_scenario3(country)
+
+        print('processing process_scenario4')
+        process_scenario4(country)
+
+        print('processing process_scenario5')
+        process_scenario5(country)
+
+        print('processing process_scenario6')
+        process_scenario6(country)
+
+        print('processing process_scenario7')
+        process_scenario7(country)
