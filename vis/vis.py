@@ -11,6 +11,7 @@ import contextily as ctx
 import matplotlib as mpl
 from matplotlib.colors import ListedColormap
 from shapely import wkt
+import textwrap
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'script_config.ini'))
@@ -363,6 +364,82 @@ def plot_outage_areas_3_to_7():
     plt.close()
 
 
+def calc_voll():
+    """
+    
+    """
+    filename = "electricity_intensity_per_employee_broad_categories.csv"
+    path_in = os.path.join(BASE_PATH, 'processed', 'NZL', filename)
+    data = pd.read_csv(path_in)
+
+    # Clean and wrap long sector names to max 20 characters per line
+    def wrap_label(label, width=22):
+        return '\n'.join(textwrap.wrap(label, width))
+    
+    # Apply wrapped labels to a new column for plotting
+    data['Wrapped_Category'] = data['Broad_Category'].apply(wrap_label)
+    data = data.sort_values('Wrapped_Category')  # keep consistent y-axis
+
+    custom_order = [
+        wrap_label('Agriculture, Forestry, and Fishing'),
+        wrap_label('Mining'),
+        wrap_label('Food Processing'),
+        wrap_label('Wood, Pulp, Paper and Printing'),
+        wrap_label('Chemicals'),
+        wrap_label('Basic Metals'),
+        wrap_label('Other Minor Sectors'),
+        wrap_label('Commercial'),
+        wrap_label('Transport'),
+    ][::-1]
+    data['Wrapped_Category'] = pd.Categorical(
+        data['Wrapped_Category'],
+        categories=custom_order,
+        ordered=True
+    )
+    data = data.sort_values('Wrapped_Category')
+    data['MWh_per_employee'] = data['GWh_per_employee']*1000
+    sectors = data['Wrapped_Category']
+    fig, axs = plt.subplots(2, 2, figsize=(9, 8), sharey=True)
+    
+    # Panel A: Electricity Consumption
+    axs[0][0].barh(sectors, data['elec_consumption_gwh'], color='skyblue')
+    axs[0][0].set_xlabel('Electricity Consumption (GWh)')
+    axs[0][0].set_title('(A) Electricity by Sector')
+    for i, v in enumerate(data['elec_consumption_gwh']):
+        axs[0][0].text(v + 100, i, f'{v:,.0f}', va='center')
+
+    # Panel B: Employment Count
+    axs[0][1].barh(sectors, data['ec_count'], color='lightgreen')
+    axs[0][1].set_xlabel('Employment Count (Millions)')
+    axs[0][1].set_title('(B) Employment Count by Sector')
+    for i, v in enumerate(data['ec_count']):
+        axs[0][1].text(v + 20000, i, f'{v/1e6:.2f}', va='center')
+
+    # Panel C: Electricity Consumption per Employee
+    axs[1][0].barh(sectors, data['MWh_per_employee'], color='salmon')
+    axs[1][0].set_xlabel('Electricity Consumption (MWh/employee)')
+    axs[1][0].set_title('(C) Electricity Consumption Per Employee')
+    for i, v in enumerate(data['MWh_per_employee']):
+        axs[1][0].text(v+2, i, f'{v:,.1f}', va='center')
+
+    # Panel D: Value of Lost Load (VoLL)
+    axs[1][1].barh(sectors, data['VoLL_usd_MWh'], color='orange')
+    axs[1][1].set_xlabel('Value of Lost Load (NZ$/MWh)')
+    axs[1][1].set_title('(D) Value of Lost Load (VoLL)')
+    for i, v in enumerate(data['VoLL_usd_MWh']):
+        axs[1][1].text(v + 800, i, f'{v:,.0f}', va='center')
+
+    axs[0][0].set_xlim(0, data['elec_consumption_gwh'].max() * 1.3)
+    axs[0][1].set_xlim(0, data['ec_count'].max() * 1.3)
+    axs[1][0].set_xlim(0, data['MWh_per_employee'].max() * 1.3)
+    axs[1][1].set_xlim(0, data['VoLL_usd_MWh'].max() * 1.3)
+
+    plt.subplots_adjust(hspace=0.3)
+    plot_path = os.path.join(VIS, 'voll.png')
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+
 def plot_sector_demand_costs():
     """
     Aggregate scenario results based on the first letter of the 'NZSIOC' column.
@@ -538,7 +615,7 @@ def plot_aggregate_demand_costs(custom_labels=None):
     # plt.savefig(plot_path, dpi=300)
 
 
-def plot_aggregate_supply_costs():
+def plot_aggregate_supply_costs_perc_voll():
     """
     Plot direct and indirect cost impacts from supply-side CSV files with larger font sizes
     and custom x-axis labels defined within the function.
@@ -546,13 +623,13 @@ def plot_aggregate_supply_costs():
 
     # Define custom labels for each scenario
     custom_labels = {
-        "scenario1": "Scenario 1",
-        "scenario2": "Scenario 2",
-        "scenario3": "Scenario 3",
-        "scenario4": "Scenario 4",
-        "scenario5": "Scenario 5",
-        "scenario6": "Scenario 6",
-        "scenario7": "Scenario 7"
+        "scenario1_employment_approach": "Scenario 1",
+        "scenario2_employment_approach": "Scenario 2",
+        "scenario3_employment_approach": "Scenario 3",
+        "scenario4_employment_approach": "Scenario 4",
+        "scenario5_employment_approach": "Scenario 5",
+        "scenario6_employment_approach": "Scenario 6",
+        "scenario7_employment_approach": "Scenario 7",
     }
 
     folder = RESULTS
@@ -561,6 +638,10 @@ def plot_aggregate_supply_costs():
     sums = []
 
     for filename in filenames:
+
+        if not 'employment' in filename:
+            continue
+
         file_path = os.path.join(folder, filename)
         data = pd.read_csv(file_path)
 
@@ -593,20 +674,92 @@ def plot_aggregate_supply_costs():
     # Annotate bars with total value
     for i, (direct, indirect) in enumerate(zip(sums_df['direct'], sums_df['indirect'])):
         total = direct + indirect
-        label_text = f'NZ${total:.2f} Bn'
+        label_text = f'${total:.2f} Bn'
         plt.text(i, total + max(sums_df['direct'] + sums_df['indirect']) * 0.01,
-                 label_text, ha='center', va='bottom', fontsize=11)
+                 label_text, ha='center', va='bottom', fontsize=12)
 
     plt.tight_layout()
     plt.grid(axis='y', linestyle='--', alpha=0.5)
 
     # Save to VIS folder
-    plot_path = os.path.join(VIS, 'supply_side_summary_plot.png')
+    plot_path = os.path.join(VIS, 'supply_side_summary_plot_perc_voll.png')
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
 
-def plot_sector_supply_costs():
+def plot_aggregate_supply_costs_tp_voll():
+    """
+    Plot direct and indirect cost impacts from supply-side CSV files with larger font sizes
+    and custom x-axis labels defined within the function.
+    """
+
+    # Define custom labels for each scenario
+    custom_labels = {
+        "scenario1_survey_approach": "Scenario 1",
+        "scenario2_survey_approach": "Scenario 2",
+        "scenario3_survey_approach": "Scenario 3",
+        "scenario4_survey_approach": "Scenario 4",
+        "scenario5_survey_approach": "Scenario 5",
+        "scenario6_survey_approach": "Scenario 6",
+        "scenario7_survey_approach": "Scenario 7"
+    }
+
+    folder = RESULTS
+    filenames = sorted([f for f in os.listdir(folder) if f.startswith('gdp_loss_by_sector_scenario') and f.endswith('.csv')])
+
+    sums = []
+
+    for filename in filenames:
+
+        if not 'survey' in filename:
+            continue
+
+        file_path = os.path.join(folder, filename)
+        data = pd.read_csv(file_path)
+
+        direct_sum = data['Direct Loss'].sum() / 1e3  # Convert to billions
+        indirect_sum = data['Indirect Loss'].sum() / 1e3
+
+        scenario_key = filename.replace('gdp_loss_by_sector_', '').replace('.csv', '')
+        label = custom_labels.get(scenario_key, scenario_key)
+
+        sums.append({
+            'label': label,
+            'direct': direct_sum,
+            'indirect': indirect_sum
+        })
+
+    # Convert to DataFrame
+    sums_df = pd.DataFrame(sums)
+
+    # Plotting
+    plt.figure(figsize=(12, 7))
+    x = range(len(sums_df))
+    bar1 = plt.bar(x, sums_df['direct'], label='Direct')
+    bar2 = plt.bar(x, sums_df['indirect'], bottom=sums_df['direct'], label='Indirect')
+
+    plt.xticks(x, sums_df['label'], rotation=30, ha='right', fontsize=12)
+    plt.ylabel('Lost GDP (Billions NZ$)', fontsize=14)
+    plt.title('Lost Direct and Indirect GDP by Scenario (Using Transpower VoLL Data)', fontsize=16)
+    plt.legend(fontsize=12)
+
+    # Annotate bars with total value
+    for i, (direct, indirect) in enumerate(zip(sums_df['direct'], sums_df['indirect'])):
+        total = direct + indirect
+        label_text = f'${total:.2f} Bn'
+        plt.text(i, total + max(sums_df['direct'] + sums_df['indirect']) * 0.01,
+                 label_text, ha='center', va='bottom', fontsize=12)
+
+    plt.tight_layout()
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+
+    # Save to VIS folder
+    plot_path = os.path.join(VIS, 'supply_side_summary_plot_survey_voll.png')
+    plt.savefig(plot_path, dpi=300)
+    plt.close()
+
+
+def plot_sector_supply_costs_perc_shock():
     """
     Aggregate scenario results based on the first letter of the 'NZSIOC' column.
     For each scenario, sum 'Direct Loss' and 'Indirect Loss' by sector initial.
@@ -638,13 +791,13 @@ def plot_sector_supply_costs():
     }
     
     label_map = {
-        'gdp_loss_by_sector_scenario1.csv': 'Scenario 1',
-        'gdp_loss_by_sector_scenario2.csv': 'Scenario 2',
-        'gdp_loss_by_sector_scenario3.csv': 'Scenario 3',
-        'gdp_loss_by_sector_scenario4.csv': 'Scenario 4',
-        'gdp_loss_by_sector_scenario5.csv': 'Scenario 5',
-        'gdp_loss_by_sector_scenario6.csv': 'Scenario 6',
-        'gdp_loss_by_sector_scenario7.csv': 'Scenario 7',
+        'gdp_loss_by_sector_scenario1_employment_approach.csv': 'Scenario 1 (% VoLL)',
+        'gdp_loss_by_sector_scenario2_employment_approach.csv': 'Scenario 2 (% VoLL)',
+        'gdp_loss_by_sector_scenario3_employment_approach.csv': 'Scenario 3 (% VoLL)',
+        'gdp_loss_by_sector_scenario4_employment_approach.csv': 'Scenario 4 (% VoLL)',
+        'gdp_loss_by_sector_scenario5_employment_approach.csv': 'Scenario 5 (% VoLL)',
+        'gdp_loss_by_sector_scenario6_employment_approach.csv': 'Scenario 6 (% VoLL)',
+        'gdp_loss_by_sector_scenario7_employment_approach.csv': 'Scenario 7 (% VoLL)',
     }
 
     filenames = sorted([f for f in os.listdir(RESULTS) if f.startswith('gdp_loss_by_sector_scenario') and f.endswith('.csv')])
@@ -652,6 +805,9 @@ def plot_sector_supply_costs():
     all_results = []
 
     for filename in filenames:
+
+        if not 'employment_approach' in filename:
+            continue
 
         filepath = os.path.join(RESULTS, filename)
         data = pd.read_csv(filepath)
@@ -707,11 +863,124 @@ def plot_sector_supply_costs():
     for j in range(len(scenarios) + 1, len(axes)):
         axes[j].axis('off')
 
-    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario', fontsize=16)
+    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (% VoLL)', fontsize=16)
     fig.supxlabel('Lost GDP (Billions NZ$)', fontsize=12)
     plt.tight_layout(rect=[0, 0.01, 1, 0.97])  # Leaves room for the suptitle
 
-    plot_path = os.path.join(VIS, 'sector_supply_costs_by_scenario_grid.png')
+    plot_path = os.path.join(VIS, 'sector_supply_costs_perc_shock.png')
+    plt.savefig(plot_path, dpi=300)
+    plt.close()
+
+
+def plot_sector_supply_costs_voll_survey():
+    """
+    Aggregate scenario results based on the first letter of the 'NZSIOC' column.
+    For each scenario, sum 'Direct Loss' and 'Indirect Loss' by sector initial.
+    Plot horizontal stacked bar charts per scenario in a 4x2 grid.
+    Legend is placed in the unused bottom-right subplot.
+    Sectors are sorted by total loss in each scenario.
+
+    """
+    sector_labels = {
+        'A': 'Agriculture, Forestry & Fishing',
+        'B': 'Mining',
+        'C': 'Manufacturing',
+        'D': 'Electricity, Gas, Water & Waste',
+        'E': 'Construction',
+        'F': 'Wholesale Trade',
+        'G': 'Retail Trade',
+        'H': 'Accommodation & Food Services',
+        'I': 'Transport, Postal & Warehousing',
+        'J': 'Information Media & Telecoms',
+        'K': 'Financial & Insurance Services',
+        'L': 'Rental, Hiring & Real Estate',
+        'M': 'Professional, Scientific & Technical',
+        'N': 'Administrative & Support Services',
+        'O': 'Public Administration & Safety',
+        'P': 'Education & Training',
+        'Q': 'Health Care & Social Assistance',
+        'R': 'Arts & Recreation Services',
+        'S': 'Other Services'
+    }
+    
+    label_map = {
+        'gdp_loss_by_sector_scenario1_survey_approach.csv': 'Scenario 1 (VoLL Survey)',
+        'gdp_loss_by_sector_scenario2_survey_approach.csv': 'Scenario 2 (VoLL Survey)',
+        'gdp_loss_by_sector_scenario3_survey_approach.csv': 'Scenario 3 (VoLL Survey)',
+        'gdp_loss_by_sector_scenario4_survey_approach.csv': 'Scenario 4 (VoLL Survey)',
+        'gdp_loss_by_sector_scenario5_survey_approach.csv': 'Scenario 5 (VoLL Survey)',
+        'gdp_loss_by_sector_scenario6_survey_approach.csv': 'Scenario 6 (VoLL Survey)',
+        'gdp_loss_by_sector_scenario7_survey_approach.csv': 'Scenario 7 (VoLL Survey)',
+    }
+
+    filenames = sorted([f for f in os.listdir(RESULTS) if f.startswith('gdp_loss_by_sector_scenario') and f.endswith('.csv')])
+
+    all_results = []
+
+    for filename in filenames:
+
+        if not 'survey_approach' in filename:
+            continue
+
+        filepath = os.path.join(RESULTS, filename)
+        data = pd.read_csv(filepath)
+
+        data['SectorInitial'] = data['NZSIOC'].str[0]
+        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum() / 1e3
+        grouped = grouped.reset_index()
+        grouped['Scenario'] = label_map.get(filename, filename)
+
+        all_results.append(grouped)
+
+    result_df = pd.concat(all_results)
+    scenarios = sorted(result_df['Scenario'].unique())
+
+    fig, axes = plt.subplots(4, 2, figsize=(10, 12), sharex=False, sharey=False)
+    axes = axes.flatten()
+
+    for i, scenario in enumerate(scenarios):
+
+        ax = axes[i]
+        df = result_df[result_df['Scenario'] == scenario].copy()
+        df['Total Loss'] = df['Direct Loss'] + df['Indirect Loss']
+        df = df.sort_values(by='Total Loss', ascending=False)
+
+        sector_initials = df['SectorInitial'].tolist()
+        y_labels = [sector_labels.get(s, s) for s in sector_initials]
+        y = range(len(sector_initials))
+
+        direct = df['Direct Loss']
+        indirect = df['Indirect Loss']
+
+        ax.barh(y, direct, label='Direct', color='tab:blue')
+        ax.barh(y, indirect, left=direct, label='Indirect', color='tab:orange')
+        ax.invert_yaxis()
+        ax.set_yticks(y)
+        ax.set_yticklabels(y_labels)
+        ax.set_title(scenario)
+        ax.grid(axis='x', linestyle='--', alpha=0.5)
+        ax.set_xlim(0, 1.75)
+
+        for j, (d, idr) in enumerate(zip(direct, indirect)):
+            total = d + idr
+            ax.text(total + 0.01, j + 0.05, f'{total:.2f}', va='center', fontsize=9)
+
+    # Hide the unused 8th subplot and use it for the legend
+    if len(scenarios) < len(axes):
+        legend_ax = axes[len(scenarios)]
+        legend_ax.axis('off')
+        handles, labels = axes[0].get_legend_handles_labels()
+        legend_ax.legend(handles, labels, loc='center', fontsize=10, frameon=False)
+
+    # Hide any additional unused subplots
+    for j in range(len(scenarios) + 1, len(axes)):
+        axes[j].axis('off')
+
+    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (VoLL Survey)', fontsize=16)
+    fig.supxlabel('Lost GDP (Billions NZ$)', fontsize=12)
+    plt.tight_layout(rect=[0, 0.01, 1, 0.97])  # Leaves room for the suptitle
+
+    plot_path = os.path.join(VIS, 'sector_supply_costs_voll_survey.png')
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
@@ -724,8 +993,14 @@ if __name__ == "__main__":
 
     # plot_outage_areas_3_to_7()
 
+    # calc_voll()
+
     # plot_aggregate_demand_costs()
 
-    plot_aggregate_supply_costs()
+    plot_aggregate_supply_costs_perc_voll()
 
-    # plot_sector_supply_costs()
+    plot_aggregate_supply_costs_tp_voll()
+
+    # plot_sector_supply_costs_perc_shock()
+
+    # plot_sector_supply_costs_voll_survey()
