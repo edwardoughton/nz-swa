@@ -632,12 +632,6 @@ def process_employment_data(country):
     # Get 2024
     data = data[data['year'] == 2024]
 
-    # # Get sectors
-    # # sectors_list = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S'] #,'T','U','V','X','W','Y','Z']
-    # # data = data[data['anzsic06'].isin(sectors_list)]
-    # data['anzsic06'] = data['anzsic06'].astype(str)
-    # data = data[data['anzsic06'].str.len() == 4]
-
     filename = 'anzsic_concordance_table.xlsx'
     folder = os.path.join(BASE_PATH, 'raw')
     path_in = os.path.join(folder, filename)
@@ -652,9 +646,10 @@ def process_employment_data(country):
     concordance_table = pd.merge(concordance_table, concordance_table2, left_on='Target Code', right_on='industry_groupings', how='inner')
 
     data = pd.merge(data, concordance_table, left_on='anzsic06', right_on='ANZSIC06', how='inner')
-
-    # Get statistical areas 2 (SA2)
-    data = data[data['Area'].str.startswith('A')]
+    #should produce a headcount of 2.5 million employees within enterprises tracked in the Business Demography dataset 
+    # (i.e., economically significant, employer-based firms)
+    data = data[data['Area'].str.startswith(('A'))]
+    data = data.drop_duplicates()
 
     filename = 'employment_lut.csv'
     folder = os.path.join(DATA_PROCESSED, 'NZL')
@@ -819,6 +814,53 @@ def generate_restoration_sequence(country):
     path_out = os.path.join(folder, filename)
     nodes = nodes.to_crs(epsg=4326)
     nodes.to_file(path_out)
+
+
+def generate_transpower_voll_lut(country):
+    """
+    
+    
+    """
+    filename = "transpower_voll_study.csv"
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+    voll = pd.read_csv(path_in)
+
+    cols_to_check = ['Residential', 'Agricultural', 'Commercial', 'Industrial']
+    voll[cols_to_check] = voll[cols_to_check].apply(pd.to_numeric, errors='coerce')
+    voll['VoLL'] = pd.to_numeric(voll['VoLL'], errors='coerce')
+    voll = voll.dropna(subset=cols_to_check)
+
+    voll['pos3'] = voll['Pos'].str[:3]
+    voll['voltage'] = voll['Pos'].str[3:6]
+    voll['voltage'] = pd.to_numeric(voll['voltage'], errors='coerce')  # convert voltage to numeric
+    voll = voll.sort_values('voltage', ascending=False).drop_duplicates('pos3', keep='first')
+    voll = voll[['pos3', 'VoLL', 'Pos', 'voltage']]
+
+    filename = "restoration_sequence.gpkg"
+    path_in = os.path.join(DATA_PROCESSED, 'NZL', filename)
+    restoration_sequence = gpd.read_file(path_in)
+    restoration_sequence['location3'] = restoration_sequence['location'].str[:3]
+
+    # Merge with left join to retain all rows from restoration_sequence
+    merged = pd.merge(
+        restoration_sequence,
+        voll,
+        left_on='location3',
+        right_on='pos3',
+        how='left'  # keep all restoration_sequence rows
+    )
+
+    mean_voll = merged['VoLL'].mean()
+    merged['VoLL'] = merged['VoLL'].fillna(mean_voll)
+
+    merged.to_csv(os.path.join(DATA_PROCESSED, 'merged.csv'))
+
+    filename = 'restoration_sequence.gpkg'
+    folder = os.path.join(DATA_PROCESSED, 'NZL')
+    path_out = os.path.join(folder, filename)
+    # merged = merged.to_crs(epsg=4326)
+    merged.to_file(path_out)
 
 
 def process_scenario1(country):
@@ -1179,13 +1221,13 @@ def process_scenario6(country):
     6-day outage scenario using GIC [A](max)_blocker1.
 
     - Affected nodes (GIC > 500 A):
-        - d1–d3: full blackout (1)
-        - d4-d5: staged restoration via 'restoration_stage'
-        - d6: fully restored (0)
+        - d1–d2: full blackout (1)
+        - d3-d4: staged restoration via 'restoration_stage'
+        - d5: fully restored (0)
 
     - Unaffected North Island nodes:
-        - d1–d6: 20% load shedding (0.2)
-        - d6: fully restored (0)
+        - d1–d4: 20% load shedding (0.2)
+        - d5: fully restored (0)
 
     - Others: always have power (0)
     """
@@ -1228,13 +1270,13 @@ def process_scenario6(country):
         data[col] = 0.0
 
         # Load shedding for unaffected North Island
-        if day <= 5:
+        if day <= 4:
             data.loc[unaffected_north_mask, col] = 0.2
         else:
             data.loc[unaffected_north_mask, col] = 0
 
         # Affected nodes
-        if day <= 3:
+        if day <= 2:
             data.loc[fail_mask, col] = 1
         else:
             threshold = (day - 3) / 2 
@@ -1254,16 +1296,16 @@ def process_scenario6(country):
 
 def process_scenario7(country):
     """
-    4-day outage scenario using GIC [A](max)_blocker2 values.
+    3-day outage scenario using GIC [A](max)_blocker2 values.
 
     - Affected nodes (GIC > 500 A):
-        - d1–d3: full blackout (1)
-        - d4: staged restoration via 'restoration_stage'
-        - d5: fully restored (0)
+        - d1–d2: full blackout (1)
+        - d3: staged restoration via 'restoration_stage'
+        - d4: fully restored (0)
 
     - Unaffected North Island nodes:
-        - d1–d4: 20% load shedding (0.2)
-        - d5: fully restored (0)
+        - d1–d3: 20% load shedding (0.2)
+        - d4: fully restored (0)
 
     - All others: always have power (0)
     """
@@ -1306,13 +1348,13 @@ def process_scenario7(country):
         data[col] = 0.0
 
         # Unaffected North Island nodes
-        if day <= 4:
+        if day <= 3:
             data.loc[unaffected_north_mask, col] = 0.2
         else:
             data.loc[unaffected_north_mask, col] = 0
 
         # Affected nodes
-        if day <= 3:
+        if day <= 2:
             data.loc[fail_mask, col] = 1  # full blackout
         else:
             threshold = (day - 3) / 1  # d3=0.33, d4=0.66, d5=1.0
@@ -1387,20 +1429,23 @@ if __name__ == "__main__":
         # print('processing generate_restoration_sequence')
         # generate_restoration_sequence(country)
 
+        # print('processing generate_transpower_voll_lut')
+        # generate_transpower_voll_lut(country)
+
         # print('processing process_scenario1')
         # process_scenario1(country)
 
         # print('processing process_scenario2')
         # process_scenario2(country)
 
-        print('processing process_scenario3')
-        process_scenario3(country)
+        # print('processing process_scenario3')
+        # process_scenario3(country)
 
-        print('processing process_scenario4')
-        process_scenario4(country)
+        # print('processing process_scenario4')
+        # process_scenario4(country)
 
-        print('processing process_scenario5')
-        process_scenario5(country)
+        # print('processing process_scenario5')
+        # process_scenario5(country)
 
         print('processing process_scenario6')
         process_scenario6(country)
