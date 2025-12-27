@@ -3,10 +3,9 @@ Preprocess data.
 
 Ed Oughton
 
-January 2025
+May 2025
 
 """
-# import sys
 import os
 import configparser
 import numpy as np
@@ -1384,68 +1383,68 @@ if __name__ == "__main__":
         if not country['iso3'] in ['NZL']: 
             continue
 
-        # print('Working on process_regions')
-        # process_regions(country['iso3'], int(country['gid_region']))
+        print('Working on process_regions')
+        process_regions(country['iso3'], int(country['gid_region']))
 
-        # print('Working on process_country_shapes')
-        # process_country_shapes(country['iso3'])
+        print('Working on process_country_shapes')
+        process_country_shapes(country['iso3'])
 
-        # print('Processing process_settlement_layer')
-        # process_settlement_layer(country)
+        print('Processing process_settlement_layer')
+        process_settlement_layer(country)
 
-        # print('Processing get_regional_data')
-        # get_regional_data(country)
+        print('Processing get_regional_data')
+        get_regional_data(country)
 
-        # print('Processing get_regional_data')
-        # process_substations(country)
+        print('Processing get_regional_data')
+        process_substations(country)
 
-        # print('Processing cluster_transformers')
-        # count_transformers(country)
+        print('Processing cluster_transformers')
+        count_transformers(country)
 
-        # print('Processing generate_voronoi_from_substations')
-        # generate_voronoi_from_substations(country)
+        print('Processing generate_voronoi_from_substations')
+        generate_voronoi_from_substations(country)
 
-        # print('Process estimate node population')
-        # estimate_population_by_node(country)
+        print('Process estimate node population')
+        estimate_population_by_node(country)
 
-        # print('Process lines')
-        # process_lines(country)
+        print('Process lines')
+        process_lines(country)
 
-        # print('processing process_sioc_lut')
-        # process_sioc_lut(country)
+        print('processing process_sioc_lut')
+        process_sioc_lut(country)
 
-        # print('processing process_hydro_locations')
-        # process_hydro_locations(country)
+        print('processing process_hydro_locations')
+        process_hydro_locations(country)
 
-        # print('processing process_employment_data')
-        # process_employment_data(country)
+        print('processing process_employment_data')
+        process_employment_data(country)
 
-        # print('processing process_sa2_to_node_lut')
-        # process_sa2_to_node_lut(country)
+        print('processing process_sa2_to_node_lut')
+        process_sa2_to_node_lut(country)
 
-        # print('processing get_employment_by_node')
-        # get_employment_by_node(country)
+        print('processing get_employment_by_node')
+        get_employment_by_node(country)
 
-        # print('processing generate_restoration_sequence')
-        # generate_restoration_sequence(country)
+        print('processing generate_restoration_sequence')
+        generate_restoration_sequence(country)
 
-        # print('processing generate_transpower_voll_lut')
-        # generate_transpower_voll_lut(country)
+        print('processing generate_transpower_voll_lut')
+        generate_transpower_voll_lut(country)
 
-        # print('processing process_scenario1')
-        # process_scenario1(country)
+        print('processing process_scenario1')
+        process_scenario1(country)
 
-        # print('processing process_scenario2')
-        # process_scenario2(country)
+        print('processing process_scenario2')
+        process_scenario2(country)
 
-        # print('processing process_scenario3')
-        # process_scenario3(country)
+        print('processing process_scenario3')
+        process_scenario3(country)
 
-        # print('processing process_scenario4')
-        # process_scenario4(country)
+        print('processing process_scenario4')
+        process_scenario4(country)
 
-        # print('processing process_scenario5')
-        # process_scenario5(country)
+        print('processing process_scenario5')
+        process_scenario5(country)
 
         print('processing process_scenario6')
         process_scenario6(country)
