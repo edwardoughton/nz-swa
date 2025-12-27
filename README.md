@@ -61,6 +61,9 @@ Scenarios differ in spatial extent, outage duration, restoration sequence, and i
 
 This research was supported by the U.S. National Science Foundation and the New Zealand Ministry of Business, Innovation and Employment. The authors thank Transpower New Zealand for data provision, technical input, and operational expertise.
 
+
+This research was supported by the U.S. National Science Foundation RAPID grant (#2434136), the NSF National Center for Atmospheric Research (#1852977) via the Early-Career Faculty Innovator Program, and the New Zealand Ministry of Business, Innovation and Employment Endeavour Fund Research Programme (contract UOOX2002). The authors would like to thank Transpower New Zealand for supporting this study by the provision of data, in-kind labour time, and modest salary support. 
+
 ---
 
 ## Disclaimer
