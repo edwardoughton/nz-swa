@@ -989,17 +989,17 @@ if __name__ == "__main__":
 
     # plot_panel()
 
-    # plot_outage_areas_1_to_2()
+    plot_outage_areas_1_to_2()
 
-    # plot_outage_areas_3_to_7()
+    plot_outage_areas_3_to_7()
 
     # calc_voll()
 
     # plot_aggregate_demand_costs()
 
-    plot_aggregate_supply_costs_perc_voll()
+    # plot_aggregate_supply_costs_perc_voll()
 
-    plot_aggregate_supply_costs_tp_voll()
+    # plot_aggregate_supply_costs_tp_voll()
 
     # plot_sector_supply_costs_perc_shock()
 
