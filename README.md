@@ -47,25 +47,6 @@ Scenarios differ in spatial extent, outage duration, restoration sequence, and i
 
 ---
 
-## Methodology
-
-### Power System Disruption Modelling
-- Uses New Zealand-specific GIC exposure estimates and transformer withstand thresholds  
-- Identifies substations and transformers removed from service to avoid damage  
-- Applies scenario-specific restoration curves reflecting realistic grid recovery  
-
-### Direct Economic Impact Estimation
-- Electricity demand is spatially downscaled using sectoral employment data  
-- Lost electricity supply is monetised using sector-specific VoLL estimates  
-- Produces sector-level direct GDP loss estimates  
-
-### Indirect Economic Impact Estimation
-- Implements a supply-driven (Ghosh) Input–Output economic model  
-- Captures cascading supply-chain effects across all economic sectors  
-- Separates total losses into direct and indirect components  
-
----
-
 ## Key Findings
 
 - Unmitigated extreme scenarios can result in up to **NZ$8.36 billion** in lost GDP  
@@ -73,29 +54,6 @@ Scenarios differ in spatial extent, outage duration, restoration sequence, and i
 - Low-cost operational mitigation (e.g. switching and islanding) can deliver benefit–cost ratios of up to **740:1**  
 - Hardware investments such as GIC blocking devices also provide strong returns (up to **80:1**)  
 - Results are conservative and do not fully capture capital equipment losses at large industrial facilities  
-
----
-
-## Repository Structure
-
-.
-├── data/
-│ ├── electricity/
-│ ├── employment/
-│ └── input_output_tables/
-├── scenarios/
-│ ├── scenario_definitions/
-│ └── restoration_curves/
-├── models/
-│ ├── direct_loss_model/
-│ ├── voll_model/
-│ └── ghosh_io_model/
-├── analysis/
-│ ├── scenario_results/
-│ └── benefit_cost_analysis/
-├── figures/
-├── requirements.txt / environment.yml
-└── README.md
 
 ---
 
