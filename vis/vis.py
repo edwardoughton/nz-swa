@@ -440,15 +440,8 @@ def calc_voll():
     plt.close()
 
 
-def plot_sector_demand_costs():
-    """
-    Aggregate scenario results based on the first letter of the 'NZSIOC' column.
-    For each scenario, sum 'Direct Loss' and 'Indirect Loss' by sector initial.
-    Plot horizontal stacked bar charts per scenario in a 4x2 grid.
-    Legend is placed in the unused bottom-right subplot.
-    Sectors are sorted by total loss in each scenario.
-    """
-    sector_labels = {
+def _sector_labels():
+    return {
         'A': 'Agriculture, Forestry & Fishing',
         'B': 'Mining',
         'C': 'Manufacturing',
@@ -469,24 +462,119 @@ def plot_sector_demand_costs():
         'R': 'Arts & Recreation Services',
         'S': 'Other Services'
     }
-    
-    label_map = {
-        'combined_losses_scenario1.csv': 'Scenario 1',
-        'combined_losses_scenario2.csv': 'Scenario 2',
-        'combined_losses_scenario3.csv': 'Scenario 3',
-        'combined_losses_scenario4.csv': 'Scenario 4',
-        'combined_losses_scenario5.csv': 'Scenario 5',
-        'combined_losses_scenario6.csv': 'Scenario 6',
-        'combined_losses_scenario7.csv': 'Scenario 7',
+
+
+def _demand_leontief_files():
+    return sorted(
+        f for f in os.listdir(RESULTS)
+        if f.startswith('demand_side_gdp_loss_by_sector_scenario')
+        and f.endswith('_population_approach.csv')
+    )
+
+
+def _demand_leontief_labels():
+    return {
+        f'demand_side_gdp_loss_by_sector_scenario{i}_population_approach.csv': f'Scenario {i}'
+        for i in range(1, 8)
     }
 
-    folder = os.path.join(BASE_PATH, '..', 'results')
-    filenames = [f for f in os.listdir(folder) if f.endswith('.csv')]
+
+def _plot_aggregate_costs(filenames, label_map, title, plot_filename):
+    sums = []
+
+    for filename in filenames:
+        data = pd.read_csv(os.path.join(RESULTS, filename))
+
+        direct_sum = data['Direct Loss'].sum() / 1e3
+        indirect_sum = data['Indirect Loss'].sum() / 1e3
+
+        sums.append({
+            'label': label_map.get(filename, filename),
+            'direct': direct_sum,
+            'indirect': indirect_sum
+        })
+
+    sums_df = pd.DataFrame(sums)
+    if sums_df.empty:
+        raise ValueError(f'No result files found for {plot_filename}')
+
+    plt.figure(figsize=(12, 7))
+    x = range(len(sums_df))
+    plt.bar(x, sums_df['direct'], label='Direct')
+    plt.bar(x, sums_df['indirect'], bottom=sums_df['direct'], label='Indirect')
+
+    plt.xticks(x, sums_df['label'], rotation=30, ha='right', fontsize=12)
+    plt.ylabel('Lost GDP (Billions NZ$)', fontsize=14)
+    plt.xlabel('', fontsize=14)
+    plt.title(title, fontsize=16)
+    plt.legend(fontsize=12)
+
+    totals = sums_df['direct'] + sums_df['indirect']
+    for i, total in enumerate(totals):
+        plt.text(i, total + totals.max() * 0.01,
+                 f'${total:.2f} Bn', ha='center', va='bottom', fontsize=12)
+
+    plt.tight_layout()
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+    plt.savefig(os.path.join(VIS, plot_filename), dpi=300)
+    plt.close()
+
+
+def _aggregate_loss_rows(filenames, label_map, model_name):
+    rows = []
+
+    for filename in filenames:
+        data = pd.read_csv(os.path.join(RESULTS, filename))
+        scenario_label = label_map.get(filename, filename)
+
+        rows.append({
+            'scenario': scenario_label,
+            'model': model_name,
+            'label': f'{scenario_label}\n{model_name}',
+            'direct': data['Direct Loss'].sum() / 1e3,
+            'indirect': data['Indirect Loss'].sum() / 1e3
+        })
+
+    return rows
+
+
+def _supply_employment_files():
+    return sorted(
+        f for f in os.listdir(RESULTS)
+        if f.startswith('gdp_loss_by_sector_scenario')
+        and f.endswith('_employment_approach.csv')
+    )
+
+
+def _supply_survey_files():
+    return sorted(
+        f for f in os.listdir(RESULTS)
+        if f.startswith('gdp_loss_by_sector_scenario')
+        and f.endswith('_survey_approach.csv')
+    )
+
+
+def _supply_employment_labels():
+    return {
+        f'gdp_loss_by_sector_scenario{i}_employment_approach.csv': f'Scenario {i}'
+        for i in range(1, 8)
+    }
+
+
+def _supply_survey_labels():
+    return {
+        f'gdp_loss_by_sector_scenario{i}_survey_approach.csv': f'Scenario {i}'
+        for i in range(1, 8)
+    }
+
+
+def _plot_sector_costs(filenames, label_map, title, plot_filename):
+    sector_labels = _sector_labels()
 
     all_results = []
 
     for filename in filenames:
-        filepath = os.path.join(folder, filename)
+        filepath = os.path.join(RESULTS, filename)
         data = pd.read_csv(filepath)
 
         data['SectorInitial'] = data['NZSIOC'].str[0]
@@ -496,8 +584,13 @@ def plot_sector_demand_costs():
 
         all_results.append(grouped)
 
+    if not all_results:
+        raise ValueError(f'No result files found for {plot_filename}')
+
     result_df = pd.concat(all_results)
     scenarios = sorted(result_df['Scenario'].unique())
+    max_total = (result_df['Direct Loss'] + result_df['Indirect Loss']).max()
+    x_limit = max_total * 1.25 if max_total > 0 else 1
 
     fig, axes = plt.subplots(4, 2, figsize=(10, 12), sharex=False, sharey=False)
     axes = axes.flatten()
@@ -522,11 +615,11 @@ def plot_sector_demand_costs():
         ax.set_yticklabels(y_labels)
         ax.set_title(scenario)
         ax.grid(axis='x', linestyle='--', alpha=0.5)
-        ax.set_xlim(0, 0.35)
+        ax.set_xlim(0, 1.75)
 
         for j, (d, idr) in enumerate(zip(direct, indirect)):
             total = d + idr
-            ax.text(total + 0.01, j, f'{total:.2f}', va='center', fontsize=8)
+            ax.text(total + x_limit * 0.01, j, f'{total:.2f}', va='center', fontsize=8)
 
     # Hide the unused 8th subplot and use it for the legend
     if len(scenarios) < len(axes):
@@ -539,80 +632,51 @@ def plot_sector_demand_costs():
     for j in range(len(scenarios) + 1, len(axes)):
         axes[j].axis('off')
 
-    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario', fontsize=16)
+    fig.suptitle(title, fontsize=16)
     fig.supxlabel('Lost GDP (Billions NZ$)', fontsize=12)
     fig.tight_layout(rect=[0, 0, 0.98, 0.98])
 
-    plot_path = os.path.join(VIS, 'sector_costs_by_scenario_grid.png')
+    plot_path = os.path.join(VIS, plot_filename)
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
 
+def plot_aggregate_demand_costs_population_leontief():
+    """
+    Plot aggregate direct and indirect losses for the demand-side Leontief model.
+    """
+    _plot_aggregate_costs(
+        _demand_leontief_files(),
+        _demand_leontief_labels(),
+        'Lost Direct and Indirect GDP by Scenario (Demand-Side Leontief)',
+        'demand_side_summary_plot_leontief_population.png'
+    )
+
+
+def plot_sector_demand_costs_population_leontief():
+    """
+    Plot sector direct and indirect losses for the demand-side Leontief model.
+    """
+    _plot_sector_costs(
+        _demand_leontief_files(),
+        _demand_leontief_labels(),
+        'Lost Direct and Indirect GDP by Industrial Sector and Scenario (Demand-Side Leontief)',
+        'sector_demand_costs_leontief_population.png'
+    )
+
+
 def plot_aggregate_demand_costs(custom_labels=None):
     """
-    Plot direct and indirect cost impacts with larger font sizes and optional custom x-axis labels.
-
-    Parameters:
-    custom_labels (dict): Optional mapping from original scenario labels to custom labels.
-
+    Backward-compatible wrapper for the demand-side Leontief aggregate plot.
     """
-    label_map = {
-        'combined_losses_scenario1.csv': 'Scenario 1',
-        'combined_losses_scenario2.csv': 'Scenario 2',
-        'combined_losses_scenario3.csv': 'Scenario 3',
-        'combined_losses_scenario4.csv': 'Scenario 4',
-        'combined_losses_scenario5.csv': 'Scenario 5',
-        'combined_losses_scenario6.csv': 'Scenario 6',
-        'combined_losses_scenario7.csv': 'Scenario 7',
-    }
-    folder = os.path.join(BASE_PATH, '..', 'results')
-    filenames = os.listdir(folder)
+    plot_aggregate_demand_costs_population_leontief()
 
-    sums = []
 
-    for filename in filenames:
-        data = pd.read_csv(os.path.join(folder, filename))
-
-        direct_sum = data['Direct Loss'].sum() / 1e3
-        indirect_sum = data['Indirect Loss'].sum() / 1e3
-
-        label = label_map.get(filename, filename)
-        if custom_labels and label in custom_labels:
-            label = custom_labels[label]
-
-        sums.append({
-            'label': label,
-            'direct': direct_sum,
-            'indirect': indirect_sum
-        })
-
-    # Convert to DataFrame
-    sums_df = pd.DataFrame(sums)
-
-    # Plotting
-    plt.figure(figsize=(12, 7))
-    x = range(len(sums_df))
-    bar1 = plt.bar(x, sums_df['direct'], label='Direct')
-    bar2 = plt.bar(x, sums_df['indirect'], bottom=sums_df['direct'], label='Indirect')
-
-    plt.xticks(x, sums_df['label'], rotation=30, ha='right', fontsize=12)
-    plt.ylabel('Lost GDP (Billions NZ$)', fontsize=14)
-    plt.xlabel('', fontsize=14)
-    plt.title('Lost Direct and Indirect GDP by Scenario', fontsize=16)
-    plt.legend(fontsize=12)
-
-    # Annotate bars with total value
-    for i, (direct, indirect) in enumerate(zip(sums_df['direct'], sums_df['indirect'])):
-        total = direct + indirect
-        plt.text(i, total + max(sums_df['direct'] + sums_df['indirect']) * 0.01,
-                 f'{total:.3g}', ha='center', va='bottom', fontsize=11)
-
-    plt.tight_layout()
-    plt.grid(axis='y', linestyle='--', alpha=0.5)
-
-    # Save to VIS folder
-    # plot_path = os.path.join(VIS, 'summary_plot.png')
-    # plt.savefig(plot_path, dpi=300)
+def plot_sector_demand_costs():
+    """
+    Backward-compatible wrapper for the demand-side Leontief sector plot.
+    """
+    plot_sector_demand_costs_population_leontief()
 
 
 def plot_aggregate_supply_costs_perc_voll():
@@ -621,35 +685,19 @@ def plot_aggregate_supply_costs_perc_voll():
     and custom x-axis labels defined within the function.
     """
 
-    # Define custom labels for each scenario
-    custom_labels = {
-        "scenario1_employment_approach": "Scenario 1",
-        "scenario2_employment_approach": "Scenario 2",
-        "scenario3_employment_approach": "Scenario 3",
-        "scenario4_employment_approach": "Scenario 4",
-        "scenario5_employment_approach": "Scenario 5",
-        "scenario6_employment_approach": "Scenario 6",
-        "scenario7_employment_approach": "Scenario 7",
-    }
-
-    folder = RESULTS
-    filenames = sorted([f for f in os.listdir(folder) if f.startswith('gdp_loss_by_sector_scenario') and f.endswith('.csv')])
+    custom_labels = _supply_employment_labels()
+    filenames = _supply_employment_files()
 
     sums = []
 
     for filename in filenames:
-
-        if not 'employment' in filename:
-            continue
-
-        file_path = os.path.join(folder, filename)
+        file_path = os.path.join(RESULTS, filename)
         data = pd.read_csv(file_path)
 
         direct_sum = data['Direct Loss'].sum() / 1e3  # Convert to billions
         indirect_sum = data['Indirect Loss'].sum() / 1e3
 
-        scenario_key = filename.replace('gdp_loss_by_sector_', '').replace('.csv', '')
-        label = custom_labels.get(scenario_key, scenario_key)
+        label = custom_labels.get(filename, filename)
 
         sums.append({
             'label': label,
@@ -693,35 +741,19 @@ def plot_aggregate_supply_costs_tp_voll():
     and custom x-axis labels defined within the function.
     """
 
-    # Define custom labels for each scenario
-    custom_labels = {
-        "scenario1_survey_approach": "Scenario 1",
-        "scenario2_survey_approach": "Scenario 2",
-        "scenario3_survey_approach": "Scenario 3",
-        "scenario4_survey_approach": "Scenario 4",
-        "scenario5_survey_approach": "Scenario 5",
-        "scenario6_survey_approach": "Scenario 6",
-        "scenario7_survey_approach": "Scenario 7"
-    }
-
-    folder = RESULTS
-    filenames = sorted([f for f in os.listdir(folder) if f.startswith('gdp_loss_by_sector_scenario') and f.endswith('.csv')])
+    custom_labels = _supply_survey_labels()
+    filenames = _supply_survey_files()
 
     sums = []
 
     for filename in filenames:
-
-        if not 'survey' in filename:
-            continue
-
-        file_path = os.path.join(folder, filename)
+        file_path = os.path.join(RESULTS, filename)
         data = pd.read_csv(file_path)
 
         direct_sum = data['Direct Loss'].sum() / 1e3  # Convert to billions
         indirect_sum = data['Indirect Loss'].sum() / 1e3
 
-        scenario_key = filename.replace('gdp_loss_by_sector_', '').replace('.csv', '')
-        label = custom_labels.get(scenario_key, scenario_key)
+        label = custom_labels.get(filename, filename)
 
         sums.append({
             'label': label,
@@ -756,6 +788,83 @@ def plot_aggregate_supply_costs_tp_voll():
     # Save to VIS folder
     plot_path = os.path.join(VIS, 'supply_side_summary_plot_survey_voll.png')
     plt.savefig(plot_path, dpi=300)
+    plt.close()
+
+
+def plot_aggregate_model_cost_comparison():
+    """
+    Plot aggregate losses for the Leontief, Ghosh, and VoLL model approaches
+    in one grouped scenario comparison.
+    """
+    rows = []
+    rows.extend(_aggregate_loss_rows(
+        _demand_leontief_files(),
+        _demand_leontief_labels(),
+        'Leontief Demand-Side Model'
+    ))
+    rows.extend(_aggregate_loss_rows(
+        _supply_employment_files(),
+        _supply_employment_labels(),
+        'Ghosh Supply-Side Model'
+    ))
+    rows.extend(_aggregate_loss_rows(
+        _supply_survey_files(),
+        _supply_survey_labels(),
+        'Survey-Based VoLL Model'
+    ))
+
+    comparison = pd.DataFrame(rows)
+    if comparison.empty:
+        raise ValueError('No result files found for aggregate model comparison')
+
+    scenario_order = {f'Scenario {i}': i for i in range(1, 8)}
+    model_order = {
+        'Leontief Demand-Side Model': 0,
+        'Survey-Based VoLL Model': 1,
+        'Ghosh Supply-Side Model': 2,
+    }
+    comparison['scenario_order'] = comparison['scenario'].map(scenario_order)
+    comparison['model_order'] = comparison['model'].map(model_order)
+    comparison = comparison.sort_values(['scenario_order', 'model_order']).reset_index(drop=True)
+
+    y = []
+    labels = []
+    group_spacing = 3.35
+    for _, row in comparison.iterrows():
+        y.append((row['scenario_order'] - 1) * group_spacing + row['model_order'])
+        labels.append(row['model'].replace(' Model', ''))
+
+    plt.figure(figsize=(12, 12))
+    plt.barh(y, comparison['direct'], label='Direct')
+    plt.barh(y, comparison['indirect'], left=comparison['direct'], label='Indirect')
+
+    totals = comparison['direct'] + comparison['indirect']
+    x_limit = totals.max() * 1.12
+    for ypos, total in zip(y, totals):
+        plt.text(total + totals.max() * 0.015, ypos,
+                 f'${total:.2f} Bn', ha='left', va='center', fontsize=13)
+
+    group_centers = [(i - 1) * group_spacing + 1 for i in range(1, 8)]
+    plt.yticks(y, labels, fontsize=13)
+    plt.xticks(fontsize=14)
+    plt.xlim(0, x_limit)
+    plt.xlabel('Lost GDP (Billions NZ$)', fontsize=17)
+    plt.title('Lost Direct and Indirect GDP by Scenario and Model', fontsize=20)
+    plt.legend(fontsize=15)
+    plt.grid(axis='x', linestyle='--', alpha=0.5)
+    plt.gca().invert_yaxis()
+
+    for boundary in [(i - 1) * group_spacing + 2.5 + ((group_spacing - 3) / 2) for i in range(2, 8)]:
+        plt.axhline(boundary, color='0.85', linewidth=0.8)
+
+    ax = plt.gca()
+    for center, scenario in zip(group_centers, [f'Scenario {i}' for i in range(1, 8)]):
+        ax.text(-0.22, center, scenario, transform=ax.get_yaxis_transform(),
+                ha='right', va='center', fontsize=14)
+
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.24, right=0.96)
+    plt.savefig(os.path.join(VIS, 'aggregate_model_cost_comparison.png'), dpi=300)
     plt.close()
 
 
@@ -987,20 +1096,24 @@ def plot_sector_supply_costs_voll_survey():
 
 if __name__ == "__main__":
 
-    plot_panel()
+    # plot_panel()
 
-    plot_outage_areas_1_to_2()
+    # plot_outage_areas_1_to_2()
 
-    plot_outage_areas_3_to_7()
+    # plot_outage_areas_3_to_7()
 
-    calc_voll()
+    # calc_voll()
 
-    plot_aggregate_demand_costs()
+    plot_aggregate_model_cost_comparison()
 
-    plot_aggregate_supply_costs_perc_voll()
+    # # plot_aggregate_demand_costs_population_leontief()
 
-    plot_aggregate_supply_costs_tp_voll()
+    # # plot_aggregate_supply_costs_perc_voll()
+
+    # # plot_aggregate_supply_costs_tp_voll()
 
     plot_sector_supply_costs_perc_shock()
 
     plot_sector_supply_costs_voll_survey()
+
+    plot_sector_demand_costs_population_leontief()

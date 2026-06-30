@@ -933,12 +933,14 @@ def process_scenario2(country):
     data = data.copy()
     data['restoration_stage'] = pd.to_numeric(data['restoration_stage'], errors='coerce')
 
-    # Normalize restoration stage only for South Island (recovery case)
+    # Use the same restoration curve as Scenario 1 for South Island recovery.
+    # This keeps Scenario 2 from restoring more slowly than the worse national
+    # outage case.
     south_mask = data['island'].str.lower() == 'south'
+    min_stage = data['restoration_stage'].min()
+    max_stage = data['restoration_stage'].max()
     data.loc[south_mask, 'normalized_stage'] = (
-        data.loc[south_mask].groupby('island')['restoration_stage'].transform(
-            lambda x: ((x - x.min()) / (x.max() - x.min())) ** 0.4
-        )
+        ((data.loc[south_mask, 'restoration_stage'] - min_stage) / (max_stage - min_stage)) ** 0.5
     )
 
     # Assign outage values for each day
