@@ -75,8 +75,7 @@ def calc_employment_energy_intensity_broad_categories():
     VA_df = VA_df.groupby('Broad_Category', as_index=False)['Total_Value_Added'].sum()
 
     merged_df = pd.merge(merged_df, VA_df, left_on='Broad_Category', right_on='Broad_Category', how='left')
-    # 1.188 represents an 18% increase in inflation of the CPI from 2018 to 2025
-    merged_df['VoLL_usd_MWh'] = merged_df['Total_Value_Added']*1e6 / (merged_df['elec_consumption_gwh']*1e3) * 1.188
+    merged_df['VoLL_nzd_MWh'] = merged_df['Total_Value_Added']*1e6 / (merged_df['elec_consumption_gwh']*1e3)
 
     merged_df.to_csv(os.path.join(DATA_PROCESSED, 'NZL', 'electricity_intensity_per_employee_broad_categories.csv'), index=False)
 
@@ -86,7 +85,7 @@ def calc_employment_energy_intensity_all_sectors():
     
     
     """
-    filename = 'employment_lut.csv'
+    filename = 'employment_lut.csv' #get employment counts by sector
     folder = os.path.join(DATA_PROCESSED, 'NZL')
     path_in = os.path.join(folder, filename)
     if not os.path.exists(path_in):
@@ -94,6 +93,7 @@ def calc_employment_energy_intensity_all_sectors():
     data = pd.read_csv(path_in)
     data = data[['Target Code', 'ec_count']]
 
+    # get broad category for each sector (e.g., a higher aggregation level)
     filename = "nz_industry_broad_category_mapping.csv"
     folder = os.path.join(BASE_PATH, 'raw')
     path_in = os.path.join(folder, filename)
@@ -110,6 +110,7 @@ def calc_employment_energy_intensity_all_sectors():
     data = pd.read_excel(path_in, sheet_name='2 - Annual GWh', header=8)
     data = data[['Calendar year', 2024]]
     data = data[19:31]
+
     data = data[data['Calendar year'] != "Industrial:"]
     data['Broad_Category'] = data['Calendar year']
     data['elec_consumption_gwh'] = data[2024]
@@ -133,8 +134,7 @@ def calc_employment_energy_intensity_all_sectors():
     VA_df = VA_df.groupby('Broad_Category', as_index=False)['Total_Value_Added'].sum()
 
     merged_df = pd.merge(merged_df, VA_df, left_on='Broad_Category', right_on='Broad_Category', how='left')
-    # 1.188 represents an 18% increase in inflation of the CPI from 2018 to 2025
-    merged_df['VoLL_usd_MWh'] = merged_df['Total_Value_Added']*1e6 / (merged_df['elec_consumption_gwh']*1e3) * 1.188
+    merged_df['VoLL_nzd_MWh'] = merged_df['Total_Value_Added']*1e6 / (merged_df['elec_consumption_gwh']*1e3)
 
     filename = 'employment_lut.csv'
     folder = os.path.join(DATA_PROCESSED, 'NZL')
@@ -154,12 +154,44 @@ def calc_employment_energy_intensity_all_sectors():
     data = data[['Broad_Category', 'sector_name', 'ec_count']]
     data = data.groupby(['sector_name','Broad_Category'], as_index=False)['ec_count'].sum()
 
-    subset = merged_df[['Broad_Category', 'GWh_per_employee','VoLL_usd_MWh']]
+    subset = merged_df[['Broad_Category', 'GWh_per_employee','VoLL_nzd_MWh']]
     all_sectors = pd.merge(data, subset, left_on='Broad_Category', right_on='Broad_Category', how='left')
     all_sectors['GWh_per_sector'] = all_sectors['ec_count'] * all_sectors['GWh_per_employee']
 
     path_out = os.path.join(DATA_PROCESSED, 'NZL', 'electricity_intensity_per_employee_all_sectors.csv')
     all_sectors.to_csv(path_out,index=False)
+
+
+def generate_residential_voll_lut():
+    """
+    Build a lookup of residential VoLL by substation location prefix.
+
+    The Transpower survey file provides a total VoLL value and a Residential
+    percentage share. We convert this to an implied residential VoLL and keep
+    one record per location prefix (preferring the highest-voltage record).
+    """
+    filename = 'transpower_voll_study.csv'
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+
+    data = pd.read_csv(path_in)
+    data['VoLL'] = pd.to_numeric(data['VoLL'], errors='coerce')
+    data['Residential'] = pd.to_numeric(data['Residential'], errors='coerce')
+
+    data = data.dropna(subset=['Pos', 'VoLL', 'Residential']).copy()
+    data['location3'] = data['Pos'].astype(str).str[:3]
+    data['voltage'] = pd.to_numeric(data['Pos'].astype(str).str[3:6], errors='coerce')
+
+    data = data.sort_values('voltage', ascending=False).drop_duplicates('location3', keep='first')
+    data['residential_share'] = data['Residential'] / 100.0
+    data['residential_voll_nzd_mwh'] = data['VoLL'] * data['residential_share']
+
+    output = data[
+        ['location3', 'Pos', 'voltage', 'Residential', 'residential_share', 'VoLL', 'residential_voll_nzd_mwh']
+    ].sort_values('location3')
+
+    path_out = os.path.join(DATA_PROCESSED, 'NZL', 'residential_voll_lut.csv')
+    output.to_csv(path_out, index=False)
 
 
 
@@ -168,3 +200,5 @@ if __name__ == "__main__":
     calc_employment_energy_intensity_broad_categories()
 
     calc_employment_energy_intensity_all_sectors()
+
+    generate_residential_voll_lut()

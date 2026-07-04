@@ -12,6 +12,7 @@ import matplotlib as mpl
 from matplotlib.colors import ListedColormap
 from shapely import wkt
 import textwrap
+import re
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'script_config.ini'))
@@ -23,6 +24,33 @@ VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
 RESULTS = os.path.join(BASE_PATH, '..', 'results')
 
 mpl.rcParams['font.family'] = 'Times New Roman'
+
+METHOD_DEFINITIONS = [
+    {
+        'method_id': 'demand_population',
+        'method_label': 'Demand-Side Leontief (Population Shock)',
+        'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_population_approach.csv',
+        'summary_template': 'demand_side_summary_scenario{scenario}_population_approach.csv',
+    },
+    {
+        'method_id': 'demand_survey_voll',
+        'method_label': 'Demand-Side Leontief (Survey-Based Residential VoLL)',
+        'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_survey_voll_approach.csv',
+        'summary_template': 'demand_side_summary_scenario{scenario}_survey_voll_approach.csv',
+    },
+    {
+        'method_id': 'supply_percent_shock',
+        'method_label': 'Supply-Side Ghosh (% Shock)',
+        'filename_template': 'gdp_loss_by_sector_scenario{scenario}_employment_approach.csv',
+        'summary_template': 'gdp_loss_summary_scenario{scenario}_employment_approach.csv',
+    },
+    {
+        'method_id': 'supply_survey_voll',
+        'method_label': 'Supply-Side Ghosh (Survey-Based VoLL)',
+        'filename_template': 'gdp_loss_by_sector_scenario{scenario}_survey_approach.csv',
+        'summary_template': 'gdp_loss_summary_scenario{scenario}_survey_approach.csv',
+    },
+]
 
 def plot_panel():
     """
@@ -423,16 +451,16 @@ def calc_voll():
         axs[1][0].text(v+2, i, f'{v:,.1f}', va='center')
 
     # Panel D: Value of Lost Load (VoLL)
-    axs[1][1].barh(sectors, data['VoLL_usd_MWh'], color='orange')
+    axs[1][1].barh(sectors, data['VoLL_nzd_MWh'], color='orange')
     axs[1][1].set_xlabel('Value of Lost Load (NZ$/MWh)')
     axs[1][1].set_title('(D) Value of Lost Load (VoLL)')
-    for i, v in enumerate(data['VoLL_usd_MWh']):
+    for i, v in enumerate(data['VoLL_nzd_MWh']):
         axs[1][1].text(v + 800, i, f'{v:,.0f}', va='center')
 
     axs[0][0].set_xlim(0, data['elec_consumption_gwh'].max() * 1.3)
     axs[0][1].set_xlim(0, data['ec_count'].max() * 1.3)
     axs[1][0].set_xlim(0, data['MWh_per_employee'].max() * 1.3)
-    axs[1][1].set_xlim(0, data['VoLL_usd_MWh'].max() * 1.3)
+    axs[1][1].set_xlim(0, data['VoLL_nzd_MWh'].max() * 1.3)
 
     plt.subplots_adjust(hspace=0.3)
     plot_path = os.path.join(VIS, 'voll.png')
@@ -479,6 +507,21 @@ def _demand_leontief_labels():
     }
 
 
+def _demand_leontief_survey_voll_files():
+    return sorted(
+        f for f in os.listdir(RESULTS)
+        if f.startswith('demand_side_gdp_loss_by_sector_scenario')
+        and f.endswith('_survey_voll_approach.csv')
+    )
+
+
+def _demand_leontief_survey_voll_labels():
+    return {
+        f'demand_side_gdp_loss_by_sector_scenario{i}_survey_voll_approach.csv': f'Scenario {i}'
+        for i in range(1, 8)
+    }
+
+
 def _plot_aggregate_costs(filenames, label_map, title, plot_filename):
     sums = []
 
@@ -504,7 +547,7 @@ def _plot_aggregate_costs(filenames, label_map, title, plot_filename):
     plt.bar(x, sums_df['indirect'], bottom=sums_df['direct'], label='Indirect')
 
     plt.xticks(x, sums_df['label'], rotation=30, ha='right', fontsize=12)
-    plt.ylabel('Lost GDP (Billions NZ$)', fontsize=14)
+    plt.ylabel('Lost GDP (Billions 2026 NZ$)', fontsize=14)
     plt.xlabel('', fontsize=14)
     plt.title(title, fontsize=16)
     plt.legend(fontsize=12)
@@ -633,7 +676,7 @@ def _plot_sector_costs(filenames, label_map, title, plot_filename):
         axes[j].axis('off')
 
     fig.suptitle(title, fontsize=16)
-    fig.supxlabel('Lost GDP (Billions NZ$)', fontsize=12)
+    fig.supxlabel('Lost GDP (Billions 2026 NZ$)', fontsize=12)
     fig.tight_layout(rect=[0, 0, 0.98, 0.98])
 
     plot_path = os.path.join(VIS, plot_filename)
@@ -648,7 +691,7 @@ def plot_aggregate_demand_costs_population_leontief():
     _plot_aggregate_costs(
         _demand_leontief_files(),
         _demand_leontief_labels(),
-        'Lost Direct and Indirect GDP by Scenario (Demand-Side Leontief)',
+        'Lost Direct and Indirect GDP by Scenario (Demand-Side Leontief, Population Shock)',
         'demand_side_summary_plot_leontief_population.png'
     )
 
@@ -660,8 +703,34 @@ def plot_sector_demand_costs_population_leontief():
     _plot_sector_costs(
         _demand_leontief_files(),
         _demand_leontief_labels(),
-        'Lost Direct and Indirect GDP by Industrial Sector and Scenario (Demand-Side Leontief)',
+        'Lost Direct and Indirect GDP by Industrial Sector and Scenario (Demand-Side Leontief, Population Shock)',
         'sector_demand_costs_leontief_population.png'
+    )
+
+
+def plot_aggregate_demand_costs_survey_voll_leontief():
+    """
+    Plot aggregate direct and indirect losses for the demand-side Leontief
+    model with survey-based residential VoLL weighting.
+    """
+    _plot_aggregate_costs(
+        _demand_leontief_survey_voll_files(),
+        _demand_leontief_survey_voll_labels(),
+        'Lost Direct and Indirect GDP by Scenario (Demand-Side Leontief, Survey-Based Residential VoLL)',
+        'demand_side_summary_plot_leontief_survey_voll.png'
+    )
+
+
+def plot_sector_demand_costs_survey_voll_leontief():
+    """
+    Plot sector direct and indirect losses for the demand-side Leontief model
+    with survey-based residential VoLL weighting.
+    """
+    _plot_sector_costs(
+        _demand_leontief_survey_voll_files(),
+        _demand_leontief_survey_voll_labels(),
+        'Lost Direct and Indirect GDP by Industrial Sector and Scenario (Demand-Side Leontief, Survey-Based Residential VoLL)',
+        'sector_demand_costs_leontief_survey_voll.png'
     )
 
 
@@ -715,8 +784,8 @@ def plot_aggregate_supply_costs_perc_voll():
     bar2 = plt.bar(x, sums_df['indirect'], bottom=sums_df['direct'], label='Indirect')
 
     plt.xticks(x, sums_df['label'], rotation=30, ha='right', fontsize=12)
-    plt.ylabel('Lost GDP (Billions NZ$)', fontsize=14)
-    plt.title('Lost Direct and Indirect GDP by Scenario', fontsize=16)
+    plt.ylabel('Lost GDP (Billions 2026 NZ$)', fontsize=14)
+    plt.title('Lost Direct and Indirect GDP by Scenario (Supply-Side Ghosh, % Shock)', fontsize=16)
     plt.legend(fontsize=12)
 
     # Annotate bars with total value
@@ -771,8 +840,8 @@ def plot_aggregate_supply_costs_tp_voll():
     bar2 = plt.bar(x, sums_df['indirect'], bottom=sums_df['direct'], label='Indirect')
 
     plt.xticks(x, sums_df['label'], rotation=30, ha='right', fontsize=12)
-    plt.ylabel('Lost GDP (Billions NZ$)', fontsize=14)
-    plt.title('Lost Direct and Indirect GDP by Scenario (Using Transpower VoLL Data)', fontsize=16)
+    plt.ylabel('Lost GDP (Billions 2026 NZ$)', fontsize=14)
+    plt.title('Lost Direct and Indirect GDP by Scenario (Supply-Side Ghosh, Survey-Based VoLL)', fontsize=16)
     plt.legend(fontsize=12)
 
     # Annotate bars with total value
@@ -800,17 +869,22 @@ def plot_aggregate_model_cost_comparison():
     rows.extend(_aggregate_loss_rows(
         _demand_leontief_files(),
         _demand_leontief_labels(),
-        'Leontief Demand-Side Model'
+        'Demand-Side Leontief (Population Shock)'
+    ))
+    rows.extend(_aggregate_loss_rows(
+        _demand_leontief_survey_voll_files(),
+        _demand_leontief_survey_voll_labels(),
+        'Demand-Side Leontief (Survey-Based Residential VoLL)'
     ))
     rows.extend(_aggregate_loss_rows(
         _supply_employment_files(),
         _supply_employment_labels(),
-        'Ghosh Supply-Side Model'
+        'Supply-Side Ghosh (% Shock)'
     ))
     rows.extend(_aggregate_loss_rows(
         _supply_survey_files(),
         _supply_survey_labels(),
-        'Survey-Based VoLL Model'
+        'Supply-Side Ghosh (Survey-Based VoLL)'
     ))
 
     comparison = pd.DataFrame(rows)
@@ -819,9 +893,10 @@ def plot_aggregate_model_cost_comparison():
 
     scenario_order = {f'Scenario {i}': i for i in range(1, 8)}
     model_order = {
-        'Leontief Demand-Side Model': 0,
-        'Survey-Based VoLL Model': 1,
-        'Ghosh Supply-Side Model': 2,
+        'Demand-Side Leontief (Population Shock)': 0,
+        'Demand-Side Leontief (Survey-Based Residential VoLL)': 1,
+        'Supply-Side Ghosh (% Shock)': 2,
+        'Supply-Side Ghosh (Survey-Based VoLL)': 3,
     }
     comparison['scenario_order'] = comparison['scenario'].map(scenario_order)
     comparison['model_order'] = comparison['model'].map(model_order)
@@ -829,41 +904,53 @@ def plot_aggregate_model_cost_comparison():
 
     y = []
     labels = []
-    group_spacing = 3.35
+    n_models = len(model_order)
+    bar_spacing = 1.25
+    group_gap = 1.2
+    group_spacing = n_models * bar_spacing + group_gap
+    label_map = {
+        'Demand-Side Leontief (Population Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
+        'Demand-Side Leontief (Survey-Based Residential VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (% Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
+    }
     for _, row in comparison.iterrows():
-        y.append((row['scenario_order'] - 1) * group_spacing + row['model_order'])
-        labels.append(row['model'].replace(' Model', ''))
+        y.append((row['scenario_order'] - 1) * group_spacing + row['model_order'] * bar_spacing)
+        labels.append(label_map[row['model']])
 
-    plt.figure(figsize=(12, 12))
+    plt.figure(figsize=(15, 14))
     plt.barh(y, comparison['direct'], label='Direct')
     plt.barh(y, comparison['indirect'], left=comparison['direct'], label='Indirect')
 
     totals = comparison['direct'] + comparison['indirect']
-    x_limit = totals.max() * 1.12
+    x_limit = totals.max() * 1.2
     for ypos, total in zip(y, totals):
-        plt.text(total + totals.max() * 0.015, ypos,
-                 f'${total:.2f} Bn', ha='left', va='center', fontsize=13)
+        plt.text(total + totals.max() * 0.05, ypos,
+                 f'${total:.2f} Bn', ha='left', va='center', fontsize=15)
 
-    group_centers = [(i - 1) * group_spacing + 1 for i in range(1, 8)]
-    plt.yticks(y, labels, fontsize=13)
-    plt.xticks(fontsize=14)
+    group_centers = [
+        (i - 1) * group_spacing + ((n_models - 1) * bar_spacing) / 2
+        for i in range(1, 8)
+    ]
+    plt.yticks(y, labels, fontsize=16, linespacing=1.15)
+    plt.xticks(fontsize=16)
     plt.xlim(0, x_limit)
-    plt.xlabel('Lost GDP (Billions NZ$)', fontsize=17)
-    plt.title('Lost Direct and Indirect GDP by Scenario and Model', fontsize=20)
-    plt.legend(fontsize=15)
+    plt.xlabel('Lost GDP (Billions 2026 NZ$)', fontsize=18)
+    plt.title('Lost Direct and Indirect GDP by Scenario and Method', fontsize=20)
+    plt.legend(fontsize=18)
     plt.grid(axis='x', linestyle='--', alpha=0.5)
     plt.gca().invert_yaxis()
 
-    for boundary in [(i - 1) * group_spacing + 2.5 + ((group_spacing - 3) / 2) for i in range(2, 8)]:
+    for boundary in [(i - 1) * group_spacing - group_gap / 2 for i in range(2, 8)]:
         plt.axhline(boundary, color='0.85', linewidth=0.8)
 
     ax = plt.gca()
     for center, scenario in zip(group_centers, [f'Scenario {i}' for i in range(1, 8)]):
-        ax.text(-0.22, center, scenario, transform=ax.get_yaxis_transform(),
-                ha='right', va='center', fontsize=14)
+        ax.text(-0.62, center, scenario, transform=ax.get_yaxis_transform(),
+                ha='right', va='center', fontsize=18)
 
     plt.tight_layout()
-    plt.subplots_adjust(left=0.24, right=0.96)
+    plt.subplots_adjust(left=0.42, right=0.96)
     plt.savefig(os.path.join(VIS, 'aggregate_model_cost_comparison.png'), dpi=300)
     plt.close()
 
@@ -900,13 +987,13 @@ def plot_sector_supply_costs_perc_shock():
     }
     
     label_map = {
-        'gdp_loss_by_sector_scenario1_employment_approach.csv': 'Scenario 1 (% VoLL)',
-        'gdp_loss_by_sector_scenario2_employment_approach.csv': 'Scenario 2 (% VoLL)',
-        'gdp_loss_by_sector_scenario3_employment_approach.csv': 'Scenario 3 (% VoLL)',
-        'gdp_loss_by_sector_scenario4_employment_approach.csv': 'Scenario 4 (% VoLL)',
-        'gdp_loss_by_sector_scenario5_employment_approach.csv': 'Scenario 5 (% VoLL)',
-        'gdp_loss_by_sector_scenario6_employment_approach.csv': 'Scenario 6 (% VoLL)',
-        'gdp_loss_by_sector_scenario7_employment_approach.csv': 'Scenario 7 (% VoLL)',
+        'gdp_loss_by_sector_scenario1_employment_approach.csv': 'Scenario 1',
+        'gdp_loss_by_sector_scenario2_employment_approach.csv': 'Scenario 2',
+        'gdp_loss_by_sector_scenario3_employment_approach.csv': 'Scenario 3',
+        'gdp_loss_by_sector_scenario4_employment_approach.csv': 'Scenario 4',
+        'gdp_loss_by_sector_scenario5_employment_approach.csv': 'Scenario 5',
+        'gdp_loss_by_sector_scenario6_employment_approach.csv': 'Scenario 6',
+        'gdp_loss_by_sector_scenario7_employment_approach.csv': 'Scenario 7',
     }
 
     filenames = sorted([f for f in os.listdir(RESULTS) if f.startswith('gdp_loss_by_sector_scenario') and f.endswith('.csv')])
@@ -972,8 +1059,8 @@ def plot_sector_supply_costs_perc_shock():
     for j in range(len(scenarios) + 1, len(axes)):
         axes[j].axis('off')
 
-    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (% VoLL)', fontsize=16)
-    fig.supxlabel('Lost GDP (Billions NZ$)', fontsize=12)
+    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (Supply-Side Ghosh, % Shock)', fontsize=16)
+    fig.supxlabel('Lost GDP (Billions 2026 NZ$)', fontsize=12)
     plt.tight_layout(rect=[0, 0.01, 1, 0.97])  # Leaves room for the suptitle
 
     plot_path = os.path.join(VIS, 'sector_supply_costs_perc_shock.png')
@@ -1013,13 +1100,13 @@ def plot_sector_supply_costs_voll_survey():
     }
     
     label_map = {
-        'gdp_loss_by_sector_scenario1_survey_approach.csv': 'Scenario 1 (VoLL Survey)',
-        'gdp_loss_by_sector_scenario2_survey_approach.csv': 'Scenario 2 (VoLL Survey)',
-        'gdp_loss_by_sector_scenario3_survey_approach.csv': 'Scenario 3 (VoLL Survey)',
-        'gdp_loss_by_sector_scenario4_survey_approach.csv': 'Scenario 4 (VoLL Survey)',
-        'gdp_loss_by_sector_scenario5_survey_approach.csv': 'Scenario 5 (VoLL Survey)',
-        'gdp_loss_by_sector_scenario6_survey_approach.csv': 'Scenario 6 (VoLL Survey)',
-        'gdp_loss_by_sector_scenario7_survey_approach.csv': 'Scenario 7 (VoLL Survey)',
+        'gdp_loss_by_sector_scenario1_survey_approach.csv': 'Scenario 1',
+        'gdp_loss_by_sector_scenario2_survey_approach.csv': 'Scenario 2',
+        'gdp_loss_by_sector_scenario3_survey_approach.csv': 'Scenario 3',
+        'gdp_loss_by_sector_scenario4_survey_approach.csv': 'Scenario 4',
+        'gdp_loss_by_sector_scenario5_survey_approach.csv': 'Scenario 5',
+        'gdp_loss_by_sector_scenario6_survey_approach.csv': 'Scenario 6',
+        'gdp_loss_by_sector_scenario7_survey_approach.csv': 'Scenario 7',
     }
 
     filenames = sorted([f for f in os.listdir(RESULTS) if f.startswith('gdp_loss_by_sector_scenario') and f.endswith('.csv')])
@@ -1085,13 +1172,246 @@ def plot_sector_supply_costs_voll_survey():
     for j in range(len(scenarios) + 1, len(axes)):
         axes[j].axis('off')
 
-    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (VoLL Survey)', fontsize=16)
-    fig.supxlabel('Lost GDP (Billions NZ$)', fontsize=12)
+    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (Supply-Side Ghosh, Survey-Based VoLL)', fontsize=16)
+    fig.supxlabel('Lost GDP (Billions 2026 NZ$)', fontsize=12)
     plt.tight_layout(rect=[0, 0.01, 1, 0.97])  # Leaves room for the suptitle
 
     plot_path = os.path.join(VIS, 'sector_supply_costs_voll_survey.png')
     plt.savefig(plot_path, dpi=300)
     plt.close()
+
+
+def export_four_method_comparison_table():
+    """
+    Export compact long and wide tables comparing all four methods.
+    """
+    rows = []
+
+    for method in METHOD_DEFINITIONS:
+        for scenario in range(1, 8):
+            filename = method['filename_template'].format(scenario=scenario)
+            path_in = os.path.join(RESULTS, filename)
+            if not os.path.exists(path_in):
+                continue
+
+            data = pd.read_csv(path_in)
+            direct = data['Direct Loss'].sum() / 1e3
+            indirect = data['Indirect Loss'].sum() / 1e3
+            total = data['Loss'].sum() / 1e3
+
+            rows.append({
+                'Scenario': f'Scenario {scenario}',
+                'Method': method['method_label'],
+                'Direct Loss (Bn 2026 NZD)': round(direct, 6),
+                'Indirect Loss (Bn 2026 NZD)': round(indirect, 6),
+                'Total Loss (Bn 2026 NZD)': round(total, 6),
+            })
+
+    if not rows:
+        raise ValueError('No files found for four-method comparison export')
+
+    long_df = pd.DataFrame(rows)
+    scenario_order = {f'Scenario {i}': i for i in range(1, 8)}
+    method_order = {m['method_label']: i for i, m in enumerate(METHOD_DEFINITIONS)}
+
+    long_df['scenario_order'] = long_df['Scenario'].map(scenario_order)
+    long_df['method_order'] = long_df['Method'].map(method_order)
+    long_df = long_df.sort_values(['scenario_order', 'method_order']).drop(columns=['scenario_order', 'method_order'])
+
+    long_out = os.path.join(RESULTS, 'method_comparison_four_methods_long.csv')
+    long_df.to_csv(long_out, index=False)
+
+    wide_df = long_df.pivot(index='Scenario', columns='Method', values='Total Loss (Bn 2026 NZD)').reset_index()
+    wide_df['scenario_order'] = wide_df['Scenario'].map(scenario_order)
+    wide_df = wide_df.sort_values('scenario_order').drop(columns=['scenario_order'])
+    wide_out = os.path.join(RESULTS, 'method_comparison_four_methods_total_wide.csv')
+    wide_df.to_csv(wide_out, index=False)
+
+
+def export_manuscript_results_table():
+    """
+    Export a manuscript-ready compact table for the 4-method comparison.
+
+    Values are total losses in billions of NZD and rounded to 3 decimals.
+    """
+    path_in = os.path.join(RESULTS, 'method_comparison_four_methods_total_wide.csv')
+    if not os.path.exists(path_in):
+        export_four_method_comparison_table()
+
+    data = pd.read_csv(path_in)
+
+    expected_columns = [
+        'Scenario',
+        'Demand-Side Leontief (Population Shock)',
+        'Demand-Side Leontief (Survey-Based Residential VoLL)',
+        'Supply-Side Ghosh (% Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL)',
+    ]
+    data = data[expected_columns].copy()
+
+    rename_map = {
+        'Demand-Side Leontief (Population Shock)': 'Leontief Demand (Population) [Bn 2026 NZD]',
+        'Demand-Side Leontief (Survey-Based Residential VoLL)': 'Leontief Demand (Survey Residential VoLL) [Bn 2026 NZD]',
+        'Supply-Side Ghosh (% Shock)': 'Ghosh Supply (% Shock) [Bn 2026 NZD]',
+        'Supply-Side Ghosh (Survey-Based VoLL)': 'Ghosh Supply (Survey VoLL) [Bn 2026 NZD]',
+    }
+    data = data.rename(columns=rename_map)
+
+    value_columns = [c for c in data.columns if c != 'Scenario']
+    data[value_columns] = data[value_columns].round(3)
+
+    path_out = os.path.join(RESULTS, 'manuscript_results_table_four_methods.csv')
+    data.to_csv(path_out, index=False)
+
+
+def validate_four_method_results(tolerance_million_nzd=0.05):
+    """
+    Validate accounting consistency for all scenarios and all four methods.
+
+    Checks include:
+    - Output Loss = Original Output - Shocked Output
+    - Loss = Output Loss * value-added/output ratio
+    - Indirect Loss = Loss - Direct Loss
+    - Aggregate totals in dataframe sums vs summary text files
+    """
+    checks = []
+
+    for method in METHOD_DEFINITIONS:
+        for scenario in range(1, 8):
+            filename = method['filename_template'].format(scenario=scenario)
+            summary_filename = method['summary_template'].format(scenario=scenario)
+            path_in = os.path.join(RESULTS, filename)
+            summary_path = os.path.join(RESULTS, summary_filename)
+
+            if not os.path.exists(path_in):
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': 'results_file_exists',
+                    'Status': 'FAIL',
+                    'Value': '',
+                    'Expected': filename,
+                    'Abs Error': '',
+                })
+                continue
+
+            data = pd.read_csv(path_in)
+            required_columns = [
+                'Original Output',
+                'Shocked Output',
+                'Output Loss',
+                'Value Added to Output Ratio',
+                'Loss',
+                'Direct Loss',
+                'Indirect Loss',
+            ]
+            missing_columns = [c for c in required_columns if c not in data.columns]
+            if missing_columns:
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': 'manuscript_accounting_columns_exist',
+                    'Status': 'FAIL',
+                    'Value': ', '.join(missing_columns),
+                    'Expected': ', '.join(required_columns),
+                    'Abs Error': '',
+                })
+                continue
+
+            output_loss_error = (
+                data['Output Loss'] - (data['Original Output'] - data['Shocked Output']).clip(lower=0)
+            ).abs().max()
+            gdp_conversion_error = (
+                data['Loss'] - data['Output Loss'] * data['Value Added to Output Ratio']
+            ).abs().max()
+            indirect_formula_error = (
+                data['Indirect Loss'] - (data['Loss'] - data['Direct Loss'])
+            ).abs().max()
+            per_sector_error = (data['Loss'] - (data['Direct Loss'] + data['Indirect Loss'])).abs().max()
+
+            for check_name, error in [
+                ('output_loss_is_baseline_minus_post_shock_million_nzd', output_loss_error),
+                ('gdp_loss_uses_value_added_output_ratio_million_nzd', gdp_conversion_error),
+                ('indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd', indirect_formula_error),
+                ('per_sector_total_consistency_million_nzd', per_sector_error),
+            ]:
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': check_name,
+                    'Status': 'PASS' if error <= tolerance_million_nzd else 'FAIL',
+                    'Value': round(float(error), 6),
+                    'Expected': f'<= {tolerance_million_nzd}',
+                    'Abs Error': round(float(error), 6),
+                })
+
+            data_direct = float(data['Direct Loss'].sum())
+            data_indirect = float(data['Indirect Loss'].sum())
+            data_total = float(data['Loss'].sum())
+
+            if not os.path.exists(summary_path):
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': 'summary_file_exists',
+                    'Status': 'FAIL',
+                    'Value': '',
+                    'Expected': summary_filename,
+                    'Abs Error': '',
+                })
+                continue
+
+            with open(summary_path, 'r') as f:
+                summary_text = f.read()
+
+            numeric_values = [float(v) for v in re.findall(r':\s*([-+]?\d*\.?\d+)\s+million', summary_text)]
+            if len(numeric_values) >= 3:
+                summary_direct, summary_indirect, summary_total = numeric_values[:3]
+
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': 'summary_direct_matches_data_million_nzd',
+                    'Status': 'PASS' if abs(data_direct - summary_direct) <= tolerance_million_nzd else 'FAIL',
+                    'Value': round(data_direct, 6),
+                    'Expected': round(summary_direct, 6),
+                    'Abs Error': round(abs(data_direct - summary_direct), 6),
+                })
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': 'summary_indirect_matches_data_million_nzd',
+                    'Status': 'PASS' if abs(data_indirect - summary_indirect) <= tolerance_million_nzd else 'FAIL',
+                    'Value': round(data_indirect, 6),
+                    'Expected': round(summary_indirect, 6),
+                    'Abs Error': round(abs(data_indirect - summary_indirect), 6),
+                })
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': 'summary_total_matches_data_million_nzd',
+                    'Status': 'PASS' if abs(data_total - summary_total) <= tolerance_million_nzd else 'FAIL',
+                    'Value': round(data_total, 6),
+                    'Expected': round(summary_total, 6),
+                    'Abs Error': round(abs(data_total - summary_total), 6),
+                })
+            else:
+                checks.append({
+                    'Scenario': f'Scenario {scenario}',
+                    'Method': method['method_label'],
+                    'Check': 'summary_values_parseable',
+                    'Status': 'FAIL',
+                    'Value': '',
+                    'Expected': '3 numeric values',
+                    'Abs Error': '',
+                })
+
+    validation_df = pd.DataFrame(checks)
+    validation_out = os.path.join(RESULTS, 'method_comparison_validation_report.csv')
+    validation_df.to_csv(validation_out, index=False)
+
+    summary = validation_df.groupby('Status').size().to_dict()
+    print(f'Validation summary: {summary}')
 
 
 if __name__ == "__main__":
@@ -1103,6 +1423,14 @@ if __name__ == "__main__":
     # plot_outage_areas_3_to_7()
 
     # calc_voll()
+
+    plot_aggregate_demand_costs_population_leontief()
+
+    plot_aggregate_demand_costs_survey_voll_leontief()
+
+    plot_aggregate_supply_costs_perc_voll()
+
+    plot_aggregate_supply_costs_tp_voll()
 
     plot_aggregate_model_cost_comparison()
 
@@ -1117,3 +1445,11 @@ if __name__ == "__main__":
     plot_sector_supply_costs_voll_survey()
 
     plot_sector_demand_costs_population_leontief()
+
+    plot_sector_demand_costs_survey_voll_leontief()
+
+    export_four_method_comparison_table()
+
+    export_manuscript_results_table()
+
+    validate_four_method_results()
