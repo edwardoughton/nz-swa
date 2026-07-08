@@ -48,55 +48,55 @@ Scenario 7,Demand-Side Leontief (Population Shock),per_sector_total_consistency_
 Scenario 7,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,163.872225,163.87,0.002225
 Scenario 7,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,80.666921,80.67,0.003079
 Scenario 7,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,244.539145,244.54,0.000855
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),summary_direct_matches_data_million_nzd,PASS,1177.284154,1177.28,0.004154
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),summary_indirect_matches_data_million_nzd,PASS,579.524003,579.52,0.004003
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),summary_total_matches_data_million_nzd,PASS,1756.808157,1756.81,0.001843
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),summary_direct_matches_data_million_nzd,PASS,502.486779,502.49,0.003221
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),summary_indirect_matches_data_million_nzd,PASS,247.351626,247.35,0.001626
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),summary_total_matches_data_million_nzd,PASS,749.838404,749.84,0.001596
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),summary_direct_matches_data_million_nzd,PASS,511.079269,511.08,0.000731
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),summary_indirect_matches_data_million_nzd,PASS,251.581322,251.58,0.001322
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),summary_total_matches_data_million_nzd,PASS,762.660592,762.66,0.000592
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),summary_direct_matches_data_million_nzd,PASS,506.355381,506.36,0.004619
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),summary_indirect_matches_data_million_nzd,PASS,249.255964,249.26,0.004036
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),summary_total_matches_data_million_nzd,PASS,755.611345,755.61,0.001345
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),summary_direct_matches_data_million_nzd,PASS,446.090067,446.09,6.7e-05
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),summary_indirect_matches_data_million_nzd,PASS,219.590063,219.59,6.3e-05
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),summary_total_matches_data_million_nzd,PASS,665.680129,665.68,0.000129
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),summary_direct_matches_data_million_nzd,PASS,228.483357,228.48,0.003357
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),summary_indirect_matches_data_million_nzd,PASS,112.472073,112.47,0.002073
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),summary_total_matches_data_million_nzd,PASS,340.95543,340.96,0.00457
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),summary_direct_matches_data_million_nzd,PASS,165.165592,165.17,0.004408
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),summary_indirect_matches_data_million_nzd,PASS,81.303587,81.3,0.003587
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),summary_total_matches_data_million_nzd,PASS,246.469179,246.47,0.000821
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,1177.284154,1177.28,0.004154
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,579.524003,579.52,0.004003
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,1756.808157,1756.81,0.001843
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,502.486779,502.49,0.003221
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,247.351626,247.35,0.001626
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,749.838404,749.84,0.001596
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,511.079269,511.08,0.000731
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,251.581322,251.58,0.001322
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,762.660592,762.66,0.000592
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,506.355381,506.36,0.004619
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,249.255964,249.26,0.004036
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,755.611345,755.61,0.001345
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,446.090067,446.09,6.7e-05
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,219.590063,219.59,6.3e-05
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,665.680129,665.68,0.000129
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,228.483357,228.48,0.003357
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,112.472073,112.47,0.002073
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,340.95543,340.96,0.00457
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,165.165592,165.17,0.004408
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,81.303587,81.3,0.003587
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,246.469179,246.47,0.000821
 Scenario 1,Supply-Side Ghosh (% Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (% Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (% Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
@@ -150,48 +150,48 @@ Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),output_loss_is_baseline_minus_p
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,2413.09672,2413.1,0.00328
-Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,1791.49688,1791.5,0.00312
-Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,4204.593599,4204.59,0.003599
+Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,1294.24248,1294.24,0.00248
+Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,1106.456521,1106.46,0.003479
+Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,2400.699001,2400.7,0.000999
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,1032.95266,1032.95,0.00266
-Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,745.13113,745.13,0.00113
-Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,1778.083789,1778.08,0.003789
+Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,554.978993,554.98,0.001007
+Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,457.400114,457.4,0.000114
+Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,1012.379107,1012.38,0.000893
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,1031.723444,1031.72,0.003444
-Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,752.373961,752.37,0.003961
-Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,1784.097405,1784.1,0.002595
+Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,539.162956,539.16,0.002956
+Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,463.728782,463.73,0.001218
+Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,1002.891737,1002.89,0.001737
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,1019.822386,1019.82,0.002386
-Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,743.41051,743.41,0.00051
-Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,1763.232896,1763.23,0.002896
+Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,533.092717,533.09,0.002717
+Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,458.584103,458.58,0.004103
+Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,991.67682,991.68,0.00318
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,907.030027,907.03,2.7e-05
-Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,673.035828,673.04,0.004172
-Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,1580.065856,1580.07,0.004144
+Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,472.560654,472.56,0.000654
+Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,410.632279,410.63,0.002279
+Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,883.192934,883.19,0.002934
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,431.868602,431.87,0.001398
-Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,320.32854,320.33,0.00146
-Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,752.197142,752.2,0.002858
+Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,231.509544,231.51,0.000456
+Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,200.802366,200.8,0.002366
+Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,432.311911,432.31,0.001911
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,324.374451,324.37,0.004451
-Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,240.363259,240.36,0.003259
-Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,564.73771,564.74,0.00229
+Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),summary_direct_matches_data_million_nzd,PASS,172.62792,172.63,0.00208
+Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),summary_indirect_matches_data_million_nzd,PASS,148.67568,148.68,0.00432
+Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),summary_total_matches_data_million_nzd,PASS,321.303599,321.3,0.003599

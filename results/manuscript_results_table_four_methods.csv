@@ -1,8 +1,8 @@
-Scenario,Leontief Demand (Population) [Bn 2026 NZD],Leontief Demand (Survey Residential VoLL) [Bn 2026 NZD],Ghosh Supply (% Shock) [Bn 2026 NZD],Ghosh Supply (Survey VoLL) [Bn 2026 NZD]
-Scenario 1,1.754,1.757,4.399,4.205
-Scenario 2,0.748,0.75,1.816,1.778
-Scenario 3,0.744,0.763,1.819,1.784
-Scenario 4,0.736,0.756,1.802,1.763
-Scenario 5,0.653,0.666,1.623,1.58
-Scenario 6,0.335,0.341,0.778,0.752
-Scenario 7,0.245,0.246,0.589,0.565
+Scenario,Leontief Demand (Population) [Bn 2026 NZD],Leontief Demand (Survey-Based VoLL) [Bn 2026 NZD],Ghosh Supply (% Shock) [Bn 2026 NZD],Ghosh Supply (Survey-Based VoLL) [Bn 2026 NZD]
+Scenario 1,1.754,1.757,4.399,2.401
+Scenario 2,0.748,0.75,1.816,1.012
+Scenario 3,0.744,0.763,1.819,1.003
+Scenario 4,0.736,0.756,1.802,0.992
+Scenario 5,0.653,0.666,1.623,0.883
+Scenario 6,0.335,0.341,0.778,0.432
+Scenario 7,0.245,0.246,0.589,0.321

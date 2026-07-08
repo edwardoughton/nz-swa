@@ -3,14 +3,20 @@ import sys
 import configparser
 import numpy as np
 import pandas as pd
-import geopandas as gpd
+try:
+    import geopandas as gpd
+    import contextily as ctx
+    from shapely import wkt
+except ImportError:
+    gpd = None
+    ctx = None
+    wkt = None
+
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.patches as mpatches
-import contextily as ctx
 import matplotlib as mpl
 from matplotlib.colors import ListedColormap
-from shapely import wkt
 import textwrap
 import re
 
@@ -34,7 +40,7 @@ METHOD_DEFINITIONS = [
     },
     {
         'method_id': 'demand_survey_voll',
-        'method_label': 'Demand-Side Leontief (Survey-Based Residential VoLL)',
+        'method_label': 'Demand-Side Leontief (Survey-Based VoLL)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_survey_voll_approach.csv',
         'summary_template': 'demand_side_summary_scenario{scenario}_survey_voll_approach.csv',
     },
@@ -52,7 +58,7 @@ METHOD_DEFINITIONS = [
     },
 ]
 
-def plot_panel():
+def plot_grid_map_panel():
     """
     Create a 1x4 panel plot to show the initial geographic context.
 
@@ -392,7 +398,7 @@ def plot_outage_areas_3_to_7():
     plt.close()
 
 
-def calc_voll():
+def calc_voll_panel_plot():
     """
     
     """
@@ -611,6 +617,27 @@ def _supply_survey_labels():
     }
 
 
+def _sector_loss_x_limit_million_nzd():
+    filenames = (
+        _demand_leontief_files()
+        + _demand_leontief_survey_voll_files()
+        + _supply_employment_files()
+        + _supply_survey_files()
+    )
+
+    max_total = 0
+    for filename in filenames:
+        filepath = os.path.join(RESULTS, filename)
+        if not os.path.exists(filepath):
+            continue
+
+        data = pd.read_csv(filepath)
+        data['SectorInitial'] = data['NZSIOC'].str[0]
+        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum()
+        max_total = max(max_total, (grouped['Direct Loss'] + grouped['Indirect Loss']).max())
+
+    return (np.ceil(max_total / 100) * 100) + 75 if max_total > 0 else 75
+
 def _plot_sector_costs(filenames, label_map, title, plot_filename):
     sector_labels = _sector_labels()
 
@@ -621,7 +648,7 @@ def _plot_sector_costs(filenames, label_map, title, plot_filename):
         data = pd.read_csv(filepath)
 
         data['SectorInitial'] = data['NZSIOC'].str[0]
-        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum() / 1e3
+        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum()
         grouped = grouped.reset_index()
         grouped['Scenario'] = label_map.get(filename, filename)
 
@@ -632,8 +659,7 @@ def _plot_sector_costs(filenames, label_map, title, plot_filename):
 
     result_df = pd.concat(all_results)
     scenarios = sorted(result_df['Scenario'].unique())
-    max_total = (result_df['Direct Loss'] + result_df['Indirect Loss']).max()
-    x_limit = max_total * 1.25 if max_total > 0 else 1
+    x_limit = _sector_loss_x_limit_million_nzd()
 
     fig, axes = plt.subplots(4, 2, figsize=(10, 12), sharex=False, sharey=False)
     axes = axes.flatten()
@@ -658,26 +684,26 @@ def _plot_sector_costs(filenames, label_map, title, plot_filename):
         ax.set_yticklabels(y_labels)
         ax.set_title(scenario)
         ax.grid(axis='x', linestyle='--', alpha=0.5)
-        ax.set_xlim(0, 1.75)
+        ax.set_xlim(0, x_limit)
 
         for j, (d, idr) in enumerate(zip(direct, indirect)):
             total = d + idr
-            ax.text(total + x_limit * 0.01, j, f'{total:.2f}', va='center', fontsize=8)
+            ax.text(total + x_limit * 0.01, j + 0.05, f'{total:.1f}', va='center', fontsize=9)
 
     # Hide the unused 8th subplot and use it for the legend
     if len(scenarios) < len(axes):
         legend_ax = axes[len(scenarios)]
         legend_ax.axis('off')
         handles, labels = axes[0].get_legend_handles_labels()
-        legend_ax.legend(handles, labels, loc='center', fontsize=10, frameon=False)
+        legend_ax.legend(handles, labels, loc='center', fontsize=12, frameon=False)
 
     # Hide any additional unused subplots
     for j in range(len(scenarios) + 1, len(axes)):
         axes[j].axis('off')
 
     fig.suptitle(title, fontsize=16)
-    fig.supxlabel('Lost GDP (Billions 2026 NZ$)', fontsize=12)
-    fig.tight_layout(rect=[0, 0, 0.98, 0.98])
+    fig.supxlabel('Lost GDP (Millions 2026 NZ$)', fontsize=12)
+    plt.tight_layout(rect=[0, 0.01, 1, 0.97])  # Leaves room for the suptitle
 
     plot_path = os.path.join(VIS, plot_filename)
     plt.savefig(plot_path, dpi=300)
@@ -703,7 +729,7 @@ def plot_sector_demand_costs_population_leontief():
     _plot_sector_costs(
         _demand_leontief_files(),
         _demand_leontief_labels(),
-        'Lost Direct and Indirect GDP by Industrial Sector and Scenario (Demand-Side Leontief, Population Shock)',
+        'Lost Direct and Indirect GDP by Industrial Sector (Demand-Side Leontief, Population Shock)',
         'sector_demand_costs_leontief_population.png'
     )
 
@@ -711,12 +737,12 @@ def plot_sector_demand_costs_population_leontief():
 def plot_aggregate_demand_costs_survey_voll_leontief():
     """
     Plot aggregate direct and indirect losses for the demand-side Leontief
-    model with survey-based residential VoLL weighting.
+    model with Survey-Based VoLL weighting.
     """
     _plot_aggregate_costs(
         _demand_leontief_survey_voll_files(),
         _demand_leontief_survey_voll_labels(),
-        'Lost Direct and Indirect GDP by Scenario (Demand-Side Leontief, Survey-Based Residential VoLL)',
+        'Lost Direct and Indirect GDP by Scenario (Demand-Side Leontief, Survey-Based VoLL)',
         'demand_side_summary_plot_leontief_survey_voll.png'
     )
 
@@ -724,12 +750,12 @@ def plot_aggregate_demand_costs_survey_voll_leontief():
 def plot_sector_demand_costs_survey_voll_leontief():
     """
     Plot sector direct and indirect losses for the demand-side Leontief model
-    with survey-based residential VoLL weighting.
+    with Survey-Based VoLL weighting.
     """
     _plot_sector_costs(
         _demand_leontief_survey_voll_files(),
         _demand_leontief_survey_voll_labels(),
-        'Lost Direct and Indirect GDP by Industrial Sector and Scenario (Demand-Side Leontief, Survey-Based Residential VoLL)',
+        'Lost Direct and Indirect GDP by Industrial Sector (Demand-Side Leontief, Survey-Based VoLL)',
         'sector_demand_costs_leontief_survey_voll.png'
     )
 
@@ -874,7 +900,7 @@ def plot_aggregate_model_cost_comparison():
     rows.extend(_aggregate_loss_rows(
         _demand_leontief_survey_voll_files(),
         _demand_leontief_survey_voll_labels(),
-        'Demand-Side Leontief (Survey-Based Residential VoLL)'
+        'Demand-Side Leontief (Survey-Based VoLL)'
     ))
     rows.extend(_aggregate_loss_rows(
         _supply_employment_files(),
@@ -894,7 +920,7 @@ def plot_aggregate_model_cost_comparison():
     scenario_order = {f'Scenario {i}': i for i in range(1, 8)}
     model_order = {
         'Demand-Side Leontief (Population Shock)': 0,
-        'Demand-Side Leontief (Survey-Based Residential VoLL)': 1,
+        'Demand-Side Leontief (Survey-Based VoLL)': 1,
         'Supply-Side Ghosh (% Shock)': 2,
         'Supply-Side Ghosh (Survey-Based VoLL)': 3,
     }
@@ -905,12 +931,12 @@ def plot_aggregate_model_cost_comparison():
     y = []
     labels = []
     n_models = len(model_order)
-    bar_spacing = 1.25
+    bar_spacing = 1.5
     group_gap = 1.2
     group_spacing = n_models * bar_spacing + group_gap
     label_map = {
         'Demand-Side Leontief (Population Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
-        'Demand-Side Leontief (Survey-Based Residential VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Demand-Side Leontief (Survey-Based VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
         'Supply-Side Ghosh (% Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
         'Supply-Side Ghosh (Survey-Based VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
     }
@@ -923,9 +949,9 @@ def plot_aggregate_model_cost_comparison():
     plt.barh(y, comparison['indirect'], left=comparison['direct'], label='Indirect')
 
     totals = comparison['direct'] + comparison['indirect']
-    x_limit = totals.max() * 1.2
+    x_limit = totals.max() * 1.15
     for ypos, total in zip(y, totals):
-        plt.text(total + totals.max() * 0.05, ypos,
+        plt.text(total + totals.max() * 0.01, ypos,
                  f'${total:.2f} Bn', ha='left', va='center', fontsize=15)
 
     group_centers = [
@@ -941,19 +967,136 @@ def plot_aggregate_model_cost_comparison():
     plt.grid(axis='x', linestyle='--', alpha=0.5)
     plt.gca().invert_yaxis()
 
-    for boundary in [(i - 1) * group_spacing - group_gap / 2 for i in range(2, 8)]:
+    for boundary in [(i - 1) * group_spacing - group_gap / 3 for i in range(2, 8)]:
         plt.axhline(boundary, color='0.85', linewidth=0.8)
 
     ax = plt.gca()
     for center, scenario in zip(group_centers, [f'Scenario {i}' for i in range(1, 8)]):
-        ax.text(-0.62, center, scenario, transform=ax.get_yaxis_transform(),
+        ax.text(-0.70, center, scenario, transform=ax.get_yaxis_transform(),
                 ha='right', va='center', fontsize=18)
 
     plt.tight_layout()
-    plt.subplots_adjust(left=0.42, right=0.96)
+    plt.subplots_adjust(left=0.45, right=0.96)
     plt.savefig(os.path.join(VIS, 'aggregate_model_cost_comparison.png'), dpi=300)
     plt.close()
 
+
+def plot_benefit_cost_ratios():
+    """
+    Plot benefit-cost ratios by scenario and modelling method.
+    """
+    path_in = os.path.join(RESULTS, 'benefit_cost_ratios_scenario3_baseline.csv')
+    if not os.path.exists(path_in):
+        raise FileNotFoundError(
+            f'Benefit-cost ratio file not found at {path_in}. Run scripts/process.py or '
+            'process.export_benefit_cost_ratios() first.'
+        )
+
+    data = pd.read_csv(path_in)
+    data = data[data['scenario_number'].isin(range(1, 8))].copy()
+    if data.empty:
+        raise ValueError('No benefit-cost ratio rows found for plotting')
+
+    method_aliases = {
+        'Demand-Side Leontief (Survey-Based Residential VoLL)': 'Demand-Side Leontief (Survey-Based VoLL)',
+        'Supply-Side Ghosh (Customer-Class Survey VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL)',
+    }
+    data['plot_method'] = data['method'].replace(method_aliases)
+
+    model_order = {
+        'Demand-Side Leontief (Population Shock)': 0,
+        'Demand-Side Leontief (Survey-Based VoLL)': 1,
+        'Supply-Side Ghosh (% Shock)': 2,
+        'Supply-Side Ghosh (Survey-Based VoLL)': 3,
+    }
+    label_map = {
+        'Demand-Side Leontief (Population Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
+        'Demand-Side Leontief (Survey-Based VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (% Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
+    }
+
+    data['model_order'] = data['plot_method'].map(model_order)
+    unmapped = sorted(data.loc[data['model_order'].isna(), 'method'].unique())
+    if unmapped:
+        raise ValueError(f'Unmapped BCR method label(s): {unmapped}')
+
+    data = data.sort_values(['scenario_number', 'model_order']).reset_index(drop=True)
+    data['plot_bcr'] = data['benefit_cost_ratio'].fillna(0)
+    data['has_mitigation'] = data['mitigation_cost_million_2026_nzd'] > 0
+
+    n_models = len(model_order)
+    bar_spacing = 1.5
+    group_gap = 1.2
+    group_spacing = n_models * bar_spacing + group_gap
+
+    y = []
+    labels = []
+    for _, row in data.iterrows():
+        scenario_index = row['scenario_number'] - 1
+        y.append(scenario_index * group_spacing + row['model_order'] * bar_spacing)
+        labels.append(label_map[row['plot_method']])
+
+    colors = np.where(data['has_mitigation'], '#2ca02c', '0.82')
+
+    plt.figure(figsize=(15, 14))
+    plt.barh(y, data['plot_bcr'], color=colors)
+    plt.axvline(1, color='0.25', linewidth=1.2, linestyle='--')
+    plt.text(
+        0.66, 0.78,
+        'Benefit-Cost Ratios > 1\nindicate benefits\noutweigh costs',
+        transform=plt.gca().transAxes,
+        ha='center',
+        va='top',
+        multialignment='center',
+        fontsize=18,
+        color='0.25',
+        bbox={
+            'boxstyle': 'square,pad=0.35',
+            'facecolor': 'white',
+            'edgecolor': 'black',
+            'linewidth': 1.0,
+        },
+    )
+
+    finite_bcr = data.loc[data['has_mitigation'], 'benefit_cost_ratio']
+    max_bcr = finite_bcr.max() if not finite_bcr.empty else 1
+    x_limit = max_bcr * 1.24
+    no_investment_x = max_bcr * 0.01
+
+    for ypos, (_, row) in zip(y, data.iterrows()):
+        if row['has_mitigation']:
+            bcr = row['benefit_cost_ratio']
+            label = f'{bcr:.1f}' if abs(bcr) < 100 else f'{bcr:.0f}'
+            plt.text(bcr + max_bcr * 0.01, ypos, label, ha='left', va='center', fontsize=15)
+        else:
+            plt.text(no_investment_x + 5, ypos, 'No mitigation investment',
+                     ha='left', va='center', fontsize=16, color='0')
+
+    group_centers = [
+        (i - 1) * group_spacing + ((n_models - 1) * bar_spacing) / 2
+        for i in range(1, 8)
+    ]
+    plt.yticks(y, labels, fontsize=16, linespacing=1.15)
+    plt.xticks(fontsize=16)
+    plt.xlim(0, x_limit)
+    plt.xlabel('Benefit-Cost Ratio (Avoided GDP Loss / Mitigation Cost)', fontsize=18)
+    plt.title('Benefit-Cost Ratios by Scenario and Method', fontsize=20)
+    plt.grid(axis='x', linestyle='--', alpha=0.5)
+    plt.gca().invert_yaxis()
+
+    for boundary in [(i - 1) * group_spacing - group_gap / 3 for i in range(2, 8)]:
+        plt.axhline(boundary, color='0.85', linewidth=0.8)
+
+    ax = plt.gca()
+    for center, scenario in zip(group_centers, [f'Scenario {i}' for i in range(1, 8)]):
+        ax.text(-0.70, center, scenario, transform=ax.get_yaxis_transform(),
+                ha='right', va='center', fontsize=18)
+
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.45, right=0.96)
+    plt.savefig(os.path.join(VIS, 'benefit_cost_ratios_scenario3_baseline.png'), dpi=300)
+    plt.close()
 
 def plot_sector_supply_costs_perc_shock():
     """
@@ -1009,7 +1152,7 @@ def plot_sector_supply_costs_perc_shock():
         data = pd.read_csv(filepath)
 
         data['SectorInitial'] = data['NZSIOC'].str[0]
-        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum() / 1e3
+        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum()
         grouped = grouped.reset_index()
         grouped['Scenario'] = label_map.get(filename, filename)
 
@@ -1017,6 +1160,7 @@ def plot_sector_supply_costs_perc_shock():
 
     result_df = pd.concat(all_results)
     scenarios = sorted(result_df['Scenario'].unique())
+    x_limit = _sector_loss_x_limit_million_nzd()
 
     fig, axes = plt.subplots(4, 2, figsize=(10, 12), sharex=False, sharey=False)
     axes = axes.flatten()
@@ -1042,25 +1186,25 @@ def plot_sector_supply_costs_perc_shock():
         ax.set_yticklabels(y_labels)
         ax.set_title(scenario)
         ax.grid(axis='x', linestyle='--', alpha=0.5)
-        ax.set_xlim(0, 1.75)
+        ax.set_xlim(0, x_limit)
 
         for j, (d, idr) in enumerate(zip(direct, indirect)):
             total = d + idr
-            ax.text(total + 0.01, j + 0.05, f'{total:.2f}', va='center', fontsize=9)
+            ax.text(total + x_limit * 0.01, j + 0.05, f'{total:.1f}', va='center', fontsize=9)
 
     # Hide the unused 8th subplot and use it for the legend
     if len(scenarios) < len(axes):
         legend_ax = axes[len(scenarios)]
         legend_ax.axis('off')
         handles, labels = axes[0].get_legend_handles_labels()
-        legend_ax.legend(handles, labels, loc='center', fontsize=10, frameon=False)
+        legend_ax.legend(handles, labels, loc='center', fontsize=12, frameon=False)
 
     # Hide any additional unused subplots
     for j in range(len(scenarios) + 1, len(axes)):
         axes[j].axis('off')
 
-    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (Supply-Side Ghosh, % Shock)', fontsize=16)
-    fig.supxlabel('Lost GDP (Billions 2026 NZ$)', fontsize=12)
+    fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (Supply-Side Ghosh, Employment Shock)', fontsize=16)
+    fig.supxlabel('Lost GDP (Millions 2026 NZ$)', fontsize=12)
     plt.tight_layout(rect=[0, 0.01, 1, 0.97])  # Leaves room for the suptitle
 
     plot_path = os.path.join(VIS, 'sector_supply_costs_perc_shock.png')
@@ -1122,7 +1266,7 @@ def plot_sector_supply_costs_voll_survey():
         data = pd.read_csv(filepath)
 
         data['SectorInitial'] = data['NZSIOC'].str[0]
-        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum() / 1e3
+        grouped = data.groupby('SectorInitial')[['Direct Loss', 'Indirect Loss']].sum()
         grouped = grouped.reset_index()
         grouped['Scenario'] = label_map.get(filename, filename)
 
@@ -1130,6 +1274,7 @@ def plot_sector_supply_costs_voll_survey():
 
     result_df = pd.concat(all_results)
     scenarios = sorted(result_df['Scenario'].unique())
+    x_limit = _sector_loss_x_limit_million_nzd()
 
     fig, axes = plt.subplots(4, 2, figsize=(10, 12), sharex=False, sharey=False)
     axes = axes.flatten()
@@ -1155,25 +1300,25 @@ def plot_sector_supply_costs_voll_survey():
         ax.set_yticklabels(y_labels)
         ax.set_title(scenario)
         ax.grid(axis='x', linestyle='--', alpha=0.5)
-        ax.set_xlim(0, 1.75)
+        ax.set_xlim(0, x_limit)
 
         for j, (d, idr) in enumerate(zip(direct, indirect)):
             total = d + idr
-            ax.text(total + 0.01, j + 0.05, f'{total:.2f}', va='center', fontsize=9)
+            ax.text(total + x_limit * 0.01, j + 0.05, f'{total:.1f}', va='center', fontsize=9)
 
     # Hide the unused 8th subplot and use it for the legend
     if len(scenarios) < len(axes):
         legend_ax = axes[len(scenarios)]
         legend_ax.axis('off')
         handles, labels = axes[0].get_legend_handles_labels()
-        legend_ax.legend(handles, labels, loc='center', fontsize=10, frameon=False)
+        legend_ax.legend(handles, labels, loc='center', fontsize=12, frameon=False)
 
     # Hide any additional unused subplots
     for j in range(len(scenarios) + 1, len(axes)):
         axes[j].axis('off')
 
     fig.suptitle('Lost Direct and Indirect GDP by Industrial Sector and Scenario (Supply-Side Ghosh, Survey-Based VoLL)', fontsize=16)
-    fig.supxlabel('Lost GDP (Billions 2026 NZ$)', fontsize=12)
+    fig.supxlabel('Lost GDP (Millions 2026 NZ$)', fontsize=12)
     plt.tight_layout(rect=[0, 0.01, 1, 0.97])  # Leaves room for the suptitle
 
     plot_path = os.path.join(VIS, 'sector_supply_costs_voll_survey.png')
@@ -1243,7 +1388,7 @@ def export_manuscript_results_table():
     expected_columns = [
         'Scenario',
         'Demand-Side Leontief (Population Shock)',
-        'Demand-Side Leontief (Survey-Based Residential VoLL)',
+        'Demand-Side Leontief (Survey-Based VoLL)',
         'Supply-Side Ghosh (% Shock)',
         'Supply-Side Ghosh (Survey-Based VoLL)',
     ]
@@ -1251,9 +1396,9 @@ def export_manuscript_results_table():
 
     rename_map = {
         'Demand-Side Leontief (Population Shock)': 'Leontief Demand (Population) [Bn 2026 NZD]',
-        'Demand-Side Leontief (Survey-Based Residential VoLL)': 'Leontief Demand (Survey Residential VoLL) [Bn 2026 NZD]',
+        'Demand-Side Leontief (Survey-Based VoLL)': 'Leontief Demand (Survey-Based VoLL) [Bn 2026 NZD]',
         'Supply-Side Ghosh (% Shock)': 'Ghosh Supply (% Shock) [Bn 2026 NZD]',
-        'Supply-Side Ghosh (Survey-Based VoLL)': 'Ghosh Supply (Survey VoLL) [Bn 2026 NZD]',
+        'Supply-Side Ghosh (Survey-Based VoLL)': 'Ghosh Supply (Survey-Based VoLL) [Bn 2026 NZD]',
     }
     data = data.rename(columns=rename_map)
 
@@ -1416,29 +1561,17 @@ def validate_four_method_results(tolerance_million_nzd=0.05):
 
 if __name__ == "__main__":
 
-    # plot_panel()
+    plot_grid_map_panel()
 
-    # plot_outage_areas_1_to_2()
+    plot_outage_areas_1_to_2()
 
-    # plot_outage_areas_3_to_7()
+    plot_outage_areas_3_to_7()
 
-    # calc_voll()
-
-    plot_aggregate_demand_costs_population_leontief()
-
-    plot_aggregate_demand_costs_survey_voll_leontief()
-
-    plot_aggregate_supply_costs_perc_voll()
-
-    plot_aggregate_supply_costs_tp_voll()
+    calc_voll_panel_plot()
 
     plot_aggregate_model_cost_comparison()
 
-    # # plot_aggregate_demand_costs_population_leontief()
-
-    # # plot_aggregate_supply_costs_perc_voll()
-
-    # # plot_aggregate_supply_costs_tp_voll()
+    plot_benefit_cost_ratios()
 
     plot_sector_supply_costs_perc_shock()
 
