@@ -22,6 +22,48 @@ RESULTS = os.path.join(BASE_PATH, '..', 'results')
 GDP_DEFLATOR_2020_TO_2026 = 1.255
 PRICE_YEAR_LABEL = '2026 NZD'
 
+MODEL_RESULT_DEFINITIONS = [
+    {
+        'method_id': 'demand_population',
+        'method_label': 'Demand-Side Leontief (Population Shock)',
+        'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_population_approach.csv',
+    },
+    {
+        'method_id': 'demand_survey_voll',
+        'method_label': 'Demand-Side Leontief (Survey-Based Residential VoLL)',
+        'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_survey_voll_approach.csv',
+    },
+    {
+        'method_id': 'supply_percent_shock',
+        'method_label': 'Supply-Side Ghosh (% Shock)',
+        'filename_template': 'gdp_loss_by_sector_scenario{scenario}_employment_approach.csv',
+    },
+    {
+        'method_id': 'supply_customer_class_voll',
+        'method_label': 'Supply-Side Ghosh (Customer-Class Survey VoLL)',
+        'filename_template': 'gdp_loss_by_sector_scenario{scenario}_survey_approach.csv',
+    },
+]
+
+MITIGATION_COSTS_MILLION_NZD = {
+    1: 0.0,
+    2: 0.0,
+    3: 0.0,
+    4: 0.25,
+    5: 0.50,
+    6: 24.75,
+    7: 68.75,
+}
+
+MITIGATION_DESCRIPTIONS = {
+    1: 'No mitigation investment',
+    2: 'No mitigation investment',
+    3: 'No mitigation investment; BCR baseline',
+    4: 'Switching sequence',
+    5: 'Switching sequence and islanding',
+    6: 'Switching sequence, islanding, and 12 GIC blockers',
+    7: 'Switching sequence, islanding, and 34 GIC blockers',
+}
 
 def _load_io_table_components():
     """
@@ -68,6 +110,22 @@ def _get_value_added_to_output_ratio(VA, total_output):
     ratio = VA.div(total_output.replace(0, np.nan))
     ratio = ratio.replace([np.inf, -np.inf], np.nan).fillna(0)
     return ratio.clip(lower=0)
+
+
+def _get_diagonal_model_gdp_loss(model_inverse, direct_shock, VA, total_output):
+    """
+    Estimate direct GDP loss as the same-sector contribution from the IO model.
+
+    direct_shock is the exogenous model shock vector: value-added loss for Ghosh
+    models, or final-demand loss for Leontief models.
+    """
+    direct_shock = pd.Series(direct_shock).reindex(model_inverse.columns).fillna(0).clip(lower=0)
+    diagonal_output_loss = pd.Series(
+        np.diag(model_inverse.values) * direct_shock.values,
+        index=model_inverse.index,
+    )
+    va_output_ratio = _get_value_added_to_output_ratio(VA, total_output).reindex(model_inverse.index).fillna(0)
+    return diagonal_output_loss * va_output_ratio
 
 
 def _build_gdp_loss_table(iso3, baseline_output, shocked_output, direct_gdp_loss, VA, total_output):
@@ -275,17 +333,22 @@ def process_supply_shocks_employment(iso3, scenario_name, supply_shocks):
     shocked_VA = VA_aligned * shock_factors
     shocked_VA.to_csv(os.path.join(RESULTS, f'shocked_value_added_{scenario_name}.csv'))
 
-    # Direct GDP loss
-    direct_loss = (VA_aligned - shocked_VA).clip(lower=0)
+    direct_va_loss = (VA_aligned - shocked_VA).clip(lower=0)
 
     # Compute shocked output
     shocked_output = G_inv_df @ shocked_VA
+    direct_gdp_loss = _get_diagonal_model_gdp_loss(
+        G_inv_df,
+        direct_va_loss,
+        VA_aligned,
+        total_output,
+    )
 
     combined = _build_gdp_loss_table(
         iso3,
         baseline_output,
         shocked_output,
-        direct_loss,
+        direct_gdp_loss,
         VA_aligned,
         total_output,
     )
@@ -303,29 +366,59 @@ def process_supply_shocks_employment(iso3, scenario_name, supply_shocks):
         f.write(f"Total GDP loss: {round(combined['Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
 
 
-def get_direct_losses_with_voll():
+def get_supply_side_scenario_shocks_survey_voll():
     """
-    Uses employment disruptions, electricity intensity per employee,
-    and VoLL to estimate direct economic losses per sector.
+    Estimate direct sector losses using employment disruption, sector electricity
+    intensity, and Transpower customer-class VoLL by affected location.
+
+    The resulting sector losses are in millions of NZD and are used as the
+    exogenous value-added shock in the supply-side Ghosh model.
     """
     output = {}
 
-    # Load employment shocks
     folder = os.path.join(DATA_PROCESSED, 'NZL', 'scenarios')
 
-    # Load updated electricity intensity and VoLL per sector
-    intensity_data = pd.read_csv(os.path.join(DATA_PROCESSED, 'NZL', 'electricity_intensity_per_employee_all_sectors.csv'))
-    intensity_data = intensity_data.set_index('sector_name')
+    intensity_path = os.path.join(DATA_PROCESSED, 'NZL', 'electricity_intensity_per_employee_all_sectors.csv')
+    class_voll_path = os.path.join(DATA_PROCESSED, 'NZL', 'customer_class_voll_lut.csv')
+    sector_class_path = os.path.join(DATA_PROCESSED, 'NZL', 'sector_customer_class_lut.csv')
+
+    missing_paths = [path for path in [intensity_path, class_voll_path, sector_class_path] if not os.path.exists(path)]
+    if missing_paths:
+        missing = ', '.join(missing_paths)
+        raise FileNotFoundError(f'Missing VoLL input lookup(s): {missing}. Run scripts/voll.py first.')
+
+    intensity_data = pd.read_csv(intensity_path).set_index('sector_name')
+    sector_class_lut = pd.read_csv(sector_class_path).set_index('sector_name')
+    customer_voll = pd.read_csv(class_voll_path)
+
+    class_share_columns = {
+        'agricultural': 'agricultural_share',
+        'commercial': 'commercial_share',
+        'industrial': 'industrial_share',
+    }
+    class_voll_columns = {
+        'agricultural': 'agricultural_voll_nzd_mwh',
+        'commercial': 'commercial_voll_nzd_mwh',
+        'industrial': 'industrial_voll_nzd_mwh',
+    }
+    mean_share = {
+        customer_class: customer_voll[share_column].mean()
+        for customer_class, share_column in class_share_columns.items()
+    }
+    mean_voll = {
+        customer_class: customer_voll[voll_column].mean()
+        for customer_class, voll_column in class_voll_columns.items()
+    }
+
+    output_records = []
 
     for i in range(1, 8):
-
-        # if not i == 1:
-        #     continue
-
         filename = f"scenario{i}.csv"
         data = pd.read_csv(os.path.join(folder, filename))
 
-        # Determine which columns represent sectors
+        if 'location3' not in data.columns:
+            raise ValueError(f'{filename} does not contain location3 for Transpower VoLL merge')
+
         start_col = 'Accommodation'
         end_col = 'Wood product manufacturing'
         sectors = data.loc[:, start_col:end_col].columns
@@ -336,43 +429,57 @@ def get_direct_losses_with_voll():
             if sector not in intensity_data.index:
                 print(f"Warning: {sector} not found in intensity data, skipping.")
                 continue
+            if sector not in sector_class_lut.index:
+                print(f"Warning: {sector} not found in customer class LUT, using commercial VoLL.")
+                customer_class = 'commercial'
+            else:
+                customer_class = sector_class_lut.at[sector, 'customer_class']
 
-            # Retrieve intensity and VoLL
+            voll_column = class_voll_columns.get(customer_class, 'commercial_voll_nzd_mwh')
+            share = mean_share.get(customer_class, mean_share['commercial'])
+            default_voll = mean_voll.get(customer_class, mean_voll['commercial'])
+
             intensity = intensity_data.at[sector, 'GWh_per_employee']
-            voll = intensity_data.at[sector, 'VoLL_nzd_MWh']
+            location_voll = customer_voll[['location3', voll_column]].copy()
+            location_voll = location_voll.rename(columns={voll_column: 'class_voll_nzd_mwh'})
+            merged = data.merge(location_voll, on='location3', how='left')
 
-            # Sum disrupted employment across all six disruption periods
-            disrupted_total = sum(data[sector] * data[f'd{j}'] for j in range(1, 7)).sum()
+            total_voll = pd.to_numeric(merged.get('VoLL'), errors='coerce') if 'VoLL' in merged else pd.Series(np.nan, index=merged.index)
+            class_voll = pd.to_numeric(merged['class_voll_nzd_mwh'], errors='coerce')
+            class_voll = class_voll.fillna(total_voll * share).fillna(default_voll)
 
-            # Step 1: Estimate lost load in MWh from employee-days and annual GWh/employee.
-            lost_mwh = disrupted_total * (intensity / 365) * 1e3
+            employee_days = sum(
+                pd.to_numeric(merged[sector], errors='coerce').fillna(0)
+                * pd.to_numeric(merged[f'd{j}'], errors='coerce').fillna(0)
+                for j in range(1, 7)
+            )
+            lost_mwh = employee_days * (intensity / 365) * 1e3
+            direct_loss_nzd = lost_mwh * class_voll
 
-            # Step 2: Estimate economic loss in NZD.
-            direct_loss = lost_mwh * voll
+            sector_losses[sector] = direct_loss_nzd.sum() / 1e6
 
-            sector_losses[sector] = direct_loss / 1e6
+            total_lost_mwh = lost_mwh.sum()
+            weighted_voll = direct_loss_nzd.sum() / total_lost_mwh if total_lost_mwh else class_voll.mean()
+            output_records.append({
+                'scenario': filename[:-4],
+                'sector_name': sector,
+                'customer_class': customer_class,
+                'lost_mwh': total_lost_mwh,
+                'weighted_voll_nzd_mwh': weighted_voll,
+                'direct_voll_loss_million_nzd': sector_losses[sector],
+            })
 
         output[f"{filename[:-4]}"] = sector_losses
 
     voll_folder = os.path.join(DATA_PROCESSED, 'NZL', 'VoLL')
     os.makedirs(voll_folder, exist_ok=True)
 
-    records = []
-    for scenario_name, sector_losses in output.items():
-        for sector_name, direct_loss in sector_losses.items():
-            records.append({
-                'scenario': scenario_name,
-                'sector_name': sector_name,
-                'direct_voll_loss_million_nzd_2020': direct_loss,
-            })
-
-    pd.DataFrame(records).sort_values(['scenario', 'sector_name']).to_csv(
-        os.path.join(voll_folder, 'direct_losses_with_voll_by_sector.csv'),
+    pd.DataFrame(output_records).sort_values(['scenario', 'sector_name']).to_csv(
+        os.path.join(voll_folder, 'direct_losses_with_customer_class_voll_by_sector.csv'),
         index=False,
     )
 
     return output
-
 
 def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
     """
@@ -415,20 +522,31 @@ def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
     shock_factors.to_csv(os.path.join(RESULTS, f'shock_factors_{scenario_name}.csv'))
 
     # Apply shocks
-    shocked_VA = VA * shock_factors
+    shocked_VA = VA_aligned * shock_factors
     shocked_VA.to_csv(os.path.join(RESULTS, f'shocked_value_added_{scenario_name}.csv'))
 
     # Compute shocked output
     shocked_output = G_inv_df @ shocked_VA
-    print(baseline_output.sum(), shocked_output.sum(), baseline_output.sum() - shocked_output.sum())
+    direct_va_loss = (VA_aligned - shocked_VA).clip(lower=0)
+    direct_gdp_loss = _get_diagonal_model_gdp_loss(
+        G_inv_df,
+        direct_va_loss,
+        VA_aligned,
+        total_output,
+    )
+
     combined = _build_gdp_loss_table(
         iso3,
         baseline_output,
         shocked_output,
-        direct_loss_series,
+        direct_gdp_loss,
         VA_aligned,
         total_output,
     )
+
+    direct_voll_loss = direct_loss_series.reindex(combined['Description']).fillna(0).reset_index(drop=True)
+    combined['Direct VoLL Loss'] = direct_voll_loss * GDP_DEFLATOR_2020_TO_2026
+    combined['GDP Propagation Difference'] = combined['Loss'] - combined['Direct VoLL Loss']
 
     # Save sector-level results
     combined.to_csv(os.path.join(RESULTS, f'gdp_loss_by_sector_{scenario_name}.csv'), index=False)
@@ -441,6 +559,8 @@ def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
         f.write(f"Direct GDP loss: {round(combined['Direct Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
         f.write(f"Indirect GDP loss: {round(combined['Indirect Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
         f.write(f"Total GDP loss: {round(combined['Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
+        f.write(f"Direct Transpower VoLL loss used as shock input: {round(combined['Direct VoLL Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
+        f.write(f"GDP propagation difference: {round(combined['GDP Propagation Difference'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
 
 
 def process_demand_shocks_population(iso3, scenario_name, population_shock_percent):
@@ -480,8 +600,13 @@ def process_demand_shocks_population(iso3, scenario_name, population_shock_perce
     baseline_output = L_inv_df @ total_final_demand
     shocked_output = L_inv_df @ shocked_total_final_demand
 
-    direct_output_loss = (household_final_demand - shocked_household_final_demand).clip(lower=0)
-    direct_gdp_loss = direct_output_loss * _get_value_added_to_output_ratio(VA, total_output)
+    direct_final_demand_loss = (household_final_demand - shocked_household_final_demand).clip(lower=0)
+    direct_gdp_loss = _get_diagonal_model_gdp_loss(
+        L_inv_df,
+        direct_final_demand_loss,
+        VA,
+        total_output,
+    )
 
     combined = _build_gdp_loss_table(
         iso3,
@@ -503,6 +628,67 @@ def process_demand_shocks_population(iso3, scenario_name, population_shock_perce
         f.write(f"Total GDP loss: {round(combined['Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
 
 
+def _read_total_loss_million_nzd(filename):
+    """
+    Read a result file and return total GDP loss in million 2026 NZD.
+    """
+    path_in = os.path.join(RESULTS, filename)
+    if not os.path.exists(path_in):
+        return np.nan
+    data = pd.read_csv(path_in)
+    if 'Loss' not in data.columns:
+        return np.nan
+    return data['Loss'].sum()
+
+
+def export_benefit_cost_ratios(baseline_scenario=3):
+    """
+    Export benefit-cost ratios using avoided GDP loss relative to Scenario 3.
+
+    Benefits and costs are both expressed in million 2026 NZD. Scenarios with no
+    mitigation investment are retained in the output but have blank BCR values.
+    """
+    rows = []
+
+    for method_order, method in enumerate(MODEL_RESULT_DEFINITIONS):
+        baseline_filename = method['filename_template'].format(scenario=baseline_scenario)
+        baseline_loss = _read_total_loss_million_nzd(baseline_filename)
+
+        for scenario in range(1, 8):
+            filename = method['filename_template'].format(scenario=scenario)
+            scenario_loss = _read_total_loss_million_nzd(filename)
+            cost = MITIGATION_COSTS_MILLION_NZD[scenario]
+            avoided_loss = baseline_loss - scenario_loss if pd.notna(baseline_loss) and pd.notna(scenario_loss) else np.nan
+            bcr = avoided_loss / cost if cost > 0 and pd.notna(avoided_loss) else np.nan
+
+            rows.append({
+                'scenario': f'Scenario {scenario}',
+                'scenario_number': scenario,
+                'method_order': method_order,
+                'method_id': method['method_id'],
+                'method': method['method_label'],
+                'baseline_scenario': f'Scenario {baseline_scenario}',
+                'mitigation_description': MITIGATION_DESCRIPTIONS[scenario],
+                'mitigation_cost_million_2026_nzd': cost,
+                'baseline_loss_million_2026_nzd': baseline_loss,
+                'scenario_loss_million_2026_nzd': scenario_loss,
+                'avoided_loss_million_2026_nzd': avoided_loss,
+                'benefit_cost_ratio': bcr,
+            })
+
+    bcr = pd.DataFrame(rows)
+    bcr = bcr.sort_values(['scenario_number', 'method_order']).reset_index(drop=True)
+
+    long_out = os.path.join(RESULTS, 'benefit_cost_ratios_scenario3_baseline.csv')
+    bcr.to_csv(long_out, index=False)
+
+    wide = bcr.pivot(index='scenario', columns='method', values='benefit_cost_ratio').reset_index()
+    wide['scenario_number'] = wide['scenario'].str.extract(r'(\d+)').astype(int)
+    wide = wide.sort_values('scenario_number').drop(columns=['scenario_number'])
+    wide_out = os.path.join(RESULTS, 'benefit_cost_ratios_scenario3_baseline_wide.csv')
+    wide.to_csv(wide_out, index=False)
+
+    return bcr
 if __name__ == "__main__":
 
     if not os.path.exists(RESULTS):
@@ -510,23 +696,21 @@ if __name__ == "__main__":
 
     iso3 = 'NZL'
 
-    # shocks_supply = get_supply_side_scenario_shocks_employment()
-    # for scenario_name, shocks in shocks_supply.items():
-    #     # if not scenario_name == 'scenario1':
-    #     #     continue
-    #     process_supply_shocks_employment(iso3, scenario_name+'_employment_approach', shocks)
-
-    shocks_supply = get_direct_losses_with_voll()
+    shocks_supply = get_supply_side_scenario_shocks_employment()
     for scenario_name, shocks in shocks_supply.items():
-        # if not scenario_name == 'scenario1':
-        #     continue
+        process_supply_shocks_employment(iso3, scenario_name+'_employment_approach', shocks)
+
+    shocks_supply_voll = get_supply_side_scenario_shocks_survey_voll()
+    for scenario_name, shocks in shocks_supply_voll.items():
         process_supply_shocks_with_voll(iso3, scenario_name+'_survey_approach', shocks)
-        break
+        #break
 
-    # shocks_demand = get_demand_side_scenario_shocks_population()
-    # for scenario_name, shock in shocks_demand.items():
-    #     process_demand_shocks_population(iso3, scenario_name+'_population_approach', shock)
+    shocks_demand = get_demand_side_scenario_shocks_population()
+    for scenario_name, shock in shocks_demand.items():
+        process_demand_shocks_population(iso3, scenario_name+'_population_approach', shock)
 
-    # shocks_demand_survey = get_demand_side_scenario_shocks_survey_voll()
-    # for scenario_name, shock in shocks_demand_survey.items():
-    #     process_demand_shocks_population(iso3, scenario_name+'_survey_voll_approach', shock)
+    shocks_demand_survey = get_demand_side_scenario_shocks_survey_voll()
+    for scenario_name, shock in shocks_demand_survey.items():
+        process_demand_shocks_population(iso3, scenario_name+'_survey_voll_approach', shock)
+
+    export_benefit_cost_ratios()

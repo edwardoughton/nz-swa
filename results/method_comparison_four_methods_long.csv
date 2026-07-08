@@ -1,29 +1,29 @@
 Scenario,Method,Direct Loss (Bn 2026 NZD),Indirect Loss (Bn 2026 NZD),Total Loss (Bn 2026 NZD)
-Scenario 1,Demand-Side Leontief (Population Shock),1.141102,0.61246,1.753562
-Scenario 1,Demand-Side Leontief (Survey-Based Residential VoLL),1.143216,0.613595,1.756811
-Scenario 1,Supply-Side Ghosh (% Shock),4.05059,0.348394,4.398984
-Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),4.412507,-0.207914,4.204594
-Scenario 2,Demand-Side Leontief (Population Shock),0.486938,0.261353,0.748291
-Scenario 2,Demand-Side Leontief (Survey-Based Residential VoLL),0.487924,0.261882,0.749807
-Scenario 2,Supply-Side Ghosh (% Shock),1.722503,0.093857,1.816359
-Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),1.906738,-0.128655,1.778084
-Scenario 3,Demand-Side Leontief (Population Shock),0.483986,0.259768,0.743754
-Scenario 3,Demand-Side Leontief (Survey-Based Residential VoLL),0.496375,0.266418,0.762793
-Scenario 3,Supply-Side Ghosh (% Shock),1.687361,0.131316,1.818678
-Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),1.881315,-0.097218,1.784097
-Scenario 4,Demand-Side Leontief (Population Shock),0.478768,0.256968,0.735735
-Scenario 4,Demand-Side Leontief (Survey-Based Residential VoLL),0.491786,0.263955,0.755741
-Scenario 4,Supply-Side Ghosh (% Shock),1.671133,0.131278,1.80241
-Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),1.858262,-0.095029,1.763233
-Scenario 5,Demand-Side Leontief (Population Shock),0.424999,0.228108,0.653107
-Scenario 5,Demand-Side Leontief (Survey-Based Residential VoLL),0.433248,0.232536,0.665785
-Scenario 5,Supply-Side Ghosh (% Shock),1.493542,0.129354,1.622896
-Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),1.654875,-0.074809,1.580066
-Scenario 6,Demand-Side Leontief (Population Shock),0.218053,0.117035,0.335088
-Scenario 6,Demand-Side Leontief (Survey-Based Residential VoLL),0.221894,0.119097,0.340991
-Scenario 6,Supply-Side Ghosh (% Shock),0.715923,0.06191,0.777833
-Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),0.788439,-0.036242,0.752197
-Scenario 7,Demand-Side Leontief (Population Shock),0.15913,0.085409,0.244539
-Scenario 7,Demand-Side Leontief (Survey-Based Residential VoLL),0.160395,0.086089,0.246484
-Scenario 7,Supply-Side Ghosh (% Shock),0.542958,0.0461,0.589059
-Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),0.591819,-0.027081,0.564738
+Scenario 1,Demand-Side Leontief (Population Shock),1.175109,0.578453,1.753562
+Scenario 1,Demand-Side Leontief (Survey-Based VoLL),1.177284,0.579524,1.756808
+Scenario 1,Supply-Side Ghosh (% Shock),2.273263,2.125721,4.398984
+Scenario 1,Supply-Side Ghosh (Survey-Based VoLL),1.294242,1.106457,2.400699
+Scenario 2,Demand-Side Leontief (Population Shock),0.50145,0.246841,0.748291
+Scenario 2,Demand-Side Leontief (Survey-Based VoLL),0.502487,0.247352,0.749838
+Scenario 2,Supply-Side Ghosh (% Shock),0.953239,0.863121,1.816359
+Scenario 2,Supply-Side Ghosh (Survey-Based VoLL),0.554979,0.4574,1.012379
+Scenario 3,Demand-Side Leontief (Population Shock),0.498409,0.245345,0.743754
+Scenario 3,Demand-Side Leontief (Survey-Based VoLL),0.511079,0.251581,0.762661
+Scenario 3,Supply-Side Ghosh (% Shock),0.947304,0.871373,1.818678
+Scenario 3,Supply-Side Ghosh (Survey-Based VoLL),0.539163,0.463729,1.002892
+Scenario 4,Demand-Side Leontief (Population Shock),0.493036,0.242699,0.735735
+Scenario 4,Demand-Side Leontief (Survey-Based VoLL),0.506355,0.249256,0.755611
+Scenario 4,Supply-Side Ghosh (% Shock),0.938746,0.863664,1.80241
+Scenario 4,Supply-Side Ghosh (Survey-Based VoLL),0.533093,0.458584,0.991677
+Scenario 5,Demand-Side Leontief (Population Shock),0.437664,0.215442,0.653107
+Scenario 5,Demand-Side Leontief (Survey-Based VoLL),0.44609,0.21959,0.66568
+Scenario 5,Supply-Side Ghosh (% Shock),0.839056,0.78384,1.622896
+Scenario 5,Supply-Side Ghosh (Survey-Based VoLL),0.472561,0.410632,0.883193
+Scenario 6,Demand-Side Leontief (Population Shock),0.224551,0.110537,0.335088
+Scenario 6,Demand-Side Leontief (Survey-Based VoLL),0.228483,0.112472,0.340955
+Scenario 6,Supply-Side Ghosh (% Shock),0.401663,0.376169,0.777833
+Scenario 6,Supply-Side Ghosh (Survey-Based VoLL),0.23151,0.200802,0.432312
+Scenario 7,Demand-Side Leontief (Population Shock),0.163872,0.080667,0.244539
+Scenario 7,Demand-Side Leontief (Survey-Based VoLL),0.165166,0.081304,0.246469
+Scenario 7,Supply-Side Ghosh (% Shock),0.304129,0.284929,0.589059
+Scenario 7,Supply-Side Ghosh (Survey-Based VoLL),0.172628,0.148676,0.321304

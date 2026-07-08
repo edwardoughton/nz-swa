@@ -162,43 +162,120 @@ def calc_employment_energy_intensity_all_sectors():
     all_sectors.to_csv(path_out,index=False)
 
 
-def generate_residential_voll_lut():
+def generate_customer_class_voll_lut():
     """
-    Build a lookup of residential VoLL by substation location prefix.
+    Build a location-level lookup of Transpower customer-class VoLL values.
 
-    The Transpower survey file provides a total VoLL value and a Residential
-    percentage share. We convert this to an implied residential VoLL and keep
-    one record per location prefix (preferring the highest-voltage record).
+    The Transpower survey reports a total VoLL and customer-class percentage
+    shares. The class-specific values below are implied contributions to total
+    VoLL, in NZD/MWh, for use as outage-value weights by location and class.
     """
     filename = 'transpower_voll_study.csv'
     folder = os.path.join(BASE_PATH, 'raw')
     path_in = os.path.join(folder, filename)
 
     data = pd.read_csv(path_in)
-    data['VoLL'] = pd.to_numeric(data['VoLL'], errors='coerce')
-    data['Residential'] = pd.to_numeric(data['Residential'], errors='coerce')
+    class_columns = ['Residential', 'Agricultural', 'Commercial', 'Industrial']
+    numeric_columns = ['VoLL'] + class_columns
+    for column in numeric_columns:
+        data[column] = pd.to_numeric(data[column], errors='coerce')
 
-    data = data.dropna(subset=['Pos', 'VoLL', 'Residential']).copy()
+    data = data.dropna(subset=['Pos', 'VoLL']).copy()
     data['location3'] = data['Pos'].astype(str).str[:3]
     data['voltage'] = pd.to_numeric(data['Pos'].astype(str).str[3:6], errors='coerce')
+    data['class_share_sum'] = data[class_columns].sum(axis=1, skipna=True)
+    data['has_class_data'] = data['class_share_sum'] > 0
+    data.loc[~data['has_class_data'], class_columns] = pd.NA
 
-    data = data.sort_values('voltage', ascending=False).drop_duplicates('location3', keep='first')
-    data['residential_share'] = data['Residential'] / 100.0
-    data['residential_voll_nzd_mwh'] = data['VoLL'] * data['residential_share']
+    data = data.sort_values(
+        ['has_class_data', 'voltage'],
+        ascending=[False, False],
+    ).drop_duplicates('location3', keep='first')
 
-    output = data[
+    output_columns = ['location3', 'Pos', 'voltage', 'VoLL', 'class_share_sum']
+    for column in class_columns:
+        class_name = column.lower()
+        share_column = f'{class_name}_share'
+        voll_column = f'{class_name}_voll_nzd_mwh'
+        data[share_column] = data[column] / 100.0
+        data[voll_column] = data['VoLL'] * data[share_column]
+        output_columns.extend([column, share_column, voll_column])
+
+    output = data[output_columns].sort_values('location3')
+
+    path_out = os.path.join(DATA_PROCESSED, 'NZL', 'customer_class_voll_lut.csv')
+    output.to_csv(path_out, index=False)
+    return output
+
+
+def _assign_customer_class(row):
+    """
+    Map input-output sectors to Transpower customer classes.
+    """
+    broad_category = row['Broad_Category']
+    sector_name = str(row['sector_name']).lower()
+
+    if broad_category == 'Agriculture, Forestry, and Fishing':
+        return 'agricultural'
+    if broad_category in ['Basic Metals', 'Chemicals', 'Food Processing', 'Mining', 'Wood, Pulp, Paper and Printing']:
+        return 'industrial'
+    if broad_category in ['Commercial', 'Transport']:
+        return 'commercial'
+
+    industrial_terms = [
+        'manufacturing',
+        'electricity',
+        'gas and water',
+        'sewerage',
+        'waste',
+        'petroleum',
+        'mineral product',
+    ]
+    if any(term in sector_name for term in industrial_terms):
+        return 'industrial'
+
+    return 'commercial'
+
+
+def generate_sector_customer_class_lut():
+    """
+    Build a sector-level lookup from NZSIOC sectors to customer VoLL classes.
+    """
+    filename = 'nz_industry_broad_category_mapping.csv'
+    folder = os.path.join(BASE_PATH, 'raw')
+    path_in = os.path.join(folder, filename)
+
+    data = pd.read_csv(path_in)
+    data = data[['sector_name', 'Broad_Category']].drop_duplicates().copy()
+    data['customer_class'] = data.apply(_assign_customer_class, axis=1)
+    data['voll_column'] = data['customer_class'] + '_voll_nzd_mwh'
+
+    path_out = os.path.join(DATA_PROCESSED, 'NZL', 'sector_customer_class_lut.csv')
+    data.sort_values('sector_name').to_csv(path_out, index=False)
+    return data
+
+
+def generate_residential_voll_lut():
+    """
+    Build a backwards-compatible residential VoLL lookup.
+    """
+    customer_lut = generate_customer_class_voll_lut()
+    output = customer_lut[
         ['location3', 'Pos', 'voltage', 'Residential', 'residential_share', 'VoLL', 'residential_voll_nzd_mwh']
     ].sort_values('location3')
 
     path_out = os.path.join(DATA_PROCESSED, 'NZL', 'residential_voll_lut.csv')
     output.to_csv(path_out, index=False)
-
-
+    return output
 
 if __name__ == "__main__":
 
     calc_employment_energy_intensity_broad_categories()
 
     calc_employment_energy_intensity_all_sectors()
+
+    generate_customer_class_voll_lut()
+
+    generate_sector_customer_class_lut()
 
     generate_residential_voll_lut()
