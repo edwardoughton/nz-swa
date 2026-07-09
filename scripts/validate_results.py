@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import configparser
 import hashlib
 import os
@@ -23,7 +23,7 @@ TOLERANCE_MILLION_NZD = 0.05
 METHOD_DEFINITIONS = [
     {
         'method_id': 'demand_population',
-        'method_label': 'Demand-Side Leontief (Population Shock)',
+        'method_label': 'Demand-Side Leontief (Population-Weighted Shock)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_population_approach.csv',
         'summary_template': 'demand_side_summary_scenario{scenario}_population_approach.csv',
         'shock_template': 'demand_shock_factors_scenario{scenario}_population_approach.csv',
@@ -32,7 +32,7 @@ METHOD_DEFINITIONS = [
     },
     {
         'method_id': 'demand_survey_voll',
-        'method_label': 'Demand-Side Leontief (Survey-Based Residential VoLL)',
+        'method_label': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_survey_voll_approach.csv',
         'summary_template': 'demand_side_summary_scenario{scenario}_survey_voll_approach.csv',
         'shock_template': 'demand_shock_factors_scenario{scenario}_survey_voll_approach.csv',
@@ -41,7 +41,7 @@ METHOD_DEFINITIONS = [
     },
     {
         'method_id': 'supply_percent_shock',
-        'method_label': 'Supply-Side Ghosh (% Shock)',
+        'method_label': 'Supply-Side Ghosh (Employment-Weighted Shock)',
         'filename_template': 'gdp_loss_by_sector_scenario{scenario}_employment_approach.csv',
         'summary_template': 'gdp_loss_summary_scenario{scenario}_employment_approach.csv',
         'shock_template': 'shock_factors_scenario{scenario}_employment_approach.csv',
@@ -50,7 +50,7 @@ METHOD_DEFINITIONS = [
     },
     {
         'method_id': 'supply_customer_class_voll',
-        'method_label': 'Supply-Side Ghosh (Customer-Class Survey VoLL)',
+        'method_label': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
         'filename_template': 'gdp_loss_by_sector_scenario{scenario}_survey_approach.csv',
         'summary_template': 'gdp_loss_summary_scenario{scenario}_survey_approach.csv',
         'shock_template': 'shock_factors_scenario{scenario}_survey_approach.csv',

@@ -1,4 +1,4 @@
-Scenario,Demand-Side Leontief (Population Shock),Demand-Side Leontief (Survey-Based VoLL),Supply-Side Ghosh (% Shock),Supply-Side Ghosh (Survey-Based VoLL)
+Scenario,Demand-Side Leontief (Population-Weighted Shock),Demand-Side Leontief (Survey-Based VoLL Shock),Supply-Side Ghosh (Employment-Weighted Shock),Supply-Side Ghosh (Survey-Based VoLL Shock)
 Scenario 1,1.753562,1.756808,4.398984,2.400699
 Scenario 2,0.748291,0.749838,1.816359,1.012379
 Scenario 3,0.743754,0.762661,1.818678,1.002892

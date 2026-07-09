@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import configparser
 import numpy as np
@@ -34,25 +34,25 @@ mpl.rcParams['font.family'] = 'Times New Roman'
 METHOD_DEFINITIONS = [
     {
         'method_id': 'demand_population',
-        'method_label': 'Demand-Side Leontief (Population Shock)',
+        'method_label': 'Demand-Side Leontief (Population-Weighted Shock)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_population_approach.csv',
         'summary_template': 'demand_side_summary_scenario{scenario}_population_approach.csv',
     },
     {
         'method_id': 'demand_survey_voll',
-        'method_label': 'Demand-Side Leontief (Survey-Based VoLL)',
+        'method_label': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_survey_voll_approach.csv',
         'summary_template': 'demand_side_summary_scenario{scenario}_survey_voll_approach.csv',
     },
     {
         'method_id': 'supply_percent_shock',
-        'method_label': 'Supply-Side Ghosh (% Shock)',
+        'method_label': 'Supply-Side Ghosh (Employment-Weighted Shock)',
         'filename_template': 'gdp_loss_by_sector_scenario{scenario}_employment_approach.csv',
         'summary_template': 'gdp_loss_summary_scenario{scenario}_employment_approach.csv',
     },
     {
         'method_id': 'supply_survey_voll',
-        'method_label': 'Supply-Side Ghosh (Survey-Based VoLL)',
+        'method_label': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
         'filename_template': 'gdp_loss_by_sector_scenario{scenario}_survey_approach.csv',
         'summary_template': 'gdp_loss_summary_scenario{scenario}_survey_approach.csv',
     },
@@ -142,7 +142,7 @@ def plot_grid_map_panel():
     population = gpd.read_file(path_in)
     population = population.to_crs(epsg=3857)
     pop_bins = [0, 5000, 10000, 50000, 100000, float('inf')]
-    pop_labels = ['<5k', '<10k', '<50k', '<100k', '≥100k']
+    pop_labels = ['<5k', '<10k', '<50k', '<100k', 'â‰¥100k']
     population['pop_cat'] = pd.cut(population['population'], bins=pop_bins, labels=pop_labels, right=False)
     population = population.sort_values(by='pop_cat')
     national_outline.plot(ax=axs[2], edgecolor='black', facecolor='none', linewidth=.7)
@@ -192,7 +192,7 @@ def plot_grid_map_panel():
 
 def plot_outage_areas_1_to_2():
     """
-    Create a 2 (scenarios) × 4 (days) panel of choropleth maps showing spatio-temporal 
+    Create a 2 (scenarios) Ã— 4 (days) panel of choropleth maps showing spatio-temporal 
     impacts of a blackout across SA2 regions in NZ.
 
     """
@@ -225,7 +225,7 @@ def plot_outage_areas_1_to_2():
     fig.suptitle("Spatio-temporal Power Outage Restoration for Scenarios 1 and 2", fontsize=11, y=1.04)
     fig.patch.set_facecolor('#f0f0f0')
 
-    # Load scenarios 1–7
+    # Load scenarios 1â€“7
     folder = os.path.join(DATA_PROCESSED, 'NZL', 'scenarios')
     filenames = sorted([
         f for f in os.listdir(folder)
@@ -294,7 +294,7 @@ def plot_outage_areas_1_to_2():
 
 def plot_outage_areas_3_to_7():
     """
-    Create a 4 (scenarios) × 4 (days) panel of choropleth maps showing spatio-temporal 
+    Create a 4 (scenarios) Ã— 4 (days) panel of choropleth maps showing spatio-temporal 
     impacts of a blackout across SA2 regions in NZ. 
 
     """
@@ -329,7 +329,7 @@ def plot_outage_areas_3_to_7():
     fig.suptitle("Spatio-temporal Power Outage Restoration for Scenarios 3 to 7", fontsize=14)
     fig.patch.set_facecolor('#f0f0f0')
 
-    # Load scenarios 3–7
+    # Load scenarios 3â€“7
     folder = os.path.join(DATA_PROCESSED, 'NZL', 'scenarios')
     filenames = sorted([
         f for f in os.listdir(folder)
@@ -899,22 +899,22 @@ def plot_aggregate_model_cost_comparison():
     rows.extend(_aggregate_loss_rows(
         _demand_leontief_files(),
         _demand_leontief_labels(),
-        'Demand-Side Leontief (Population Shock)'
+        'Demand-Side Leontief (Population-Weighted Shock)'
     ))
     rows.extend(_aggregate_loss_rows(
         _demand_leontief_survey_voll_files(),
         _demand_leontief_survey_voll_labels(),
-        'Demand-Side Leontief (Survey-Based VoLL)'
+        'Demand-Side Leontief (Survey-Based VoLL Shock)'
     ))
     rows.extend(_aggregate_loss_rows(
         _supply_employment_files(),
         _supply_employment_labels(),
-        'Supply-Side Ghosh (% Shock)'
+        'Supply-Side Ghosh (Employment-Weighted Shock)'
     ))
     rows.extend(_aggregate_loss_rows(
         _supply_survey_files(),
         _supply_survey_labels(),
-        'Supply-Side Ghosh (Survey-Based VoLL)'
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)'
     ))
 
     comparison = pd.DataFrame(rows)
@@ -923,10 +923,10 @@ def plot_aggregate_model_cost_comparison():
 
     scenario_order = {f'Scenario {i}': i for i in range(1, 8)}
     model_order = {
-        'Demand-Side Leontief (Population Shock)': 0,
-        'Demand-Side Leontief (Survey-Based VoLL)': 1,
-        'Supply-Side Ghosh (% Shock)': 2,
-        'Supply-Side Ghosh (Survey-Based VoLL)': 3,
+        'Demand-Side Leontief (Population-Weighted Shock)': 0,
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 1,
+        'Supply-Side Ghosh (Employment-Weighted Shock)': 2,
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 3,
     }
     comparison['scenario_order'] = comparison['scenario'].map(scenario_order)
     comparison['model_order'] = comparison['model'].map(model_order)
@@ -939,10 +939,10 @@ def plot_aggregate_model_cost_comparison():
     group_gap = 1.2
     group_spacing = n_models * bar_spacing + group_gap
     label_map = {
-        'Demand-Side Leontief (Population Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
-        'Demand-Side Leontief (Survey-Based VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
-        'Supply-Side Ghosh (% Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
-        'Supply-Side Ghosh (Survey-Based VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
+        'Demand-Side Leontief (Population-Weighted Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (Employment-Weighted Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
     }
     for _, row in comparison.iterrows():
         y.append((row['scenario_order'] - 1) * group_spacing + row['model_order'] * bar_spacing)
@@ -1002,22 +1002,22 @@ def plot_benefit_cost_ratios():
         raise ValueError('No benefit-cost ratio rows found for plotting')
 
     method_aliases = {
-        'Demand-Side Leontief (Survey-Based Residential VoLL)': 'Demand-Side Leontief (Survey-Based VoLL)',
-        'Supply-Side Ghosh (Customer-Class Survey VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL)',
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
     }
     data['plot_method'] = data['method'].replace(method_aliases)
 
     model_order = {
-        'Demand-Side Leontief (Population Shock)': 0,
-        'Demand-Side Leontief (Survey-Based VoLL)': 1,
-        'Supply-Side Ghosh (% Shock)': 2,
-        'Supply-Side Ghosh (Survey-Based VoLL)': 3,
+        'Demand-Side Leontief (Population-Weighted Shock)': 0,
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 1,
+        'Supply-Side Ghosh (Employment-Weighted Shock)': 2,
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 3,
     }
     label_map = {
-        'Demand-Side Leontief (Population Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
-        'Demand-Side Leontief (Survey-Based VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
-        'Supply-Side Ghosh (% Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
-        'Supply-Side Ghosh (Survey-Based VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
+        'Demand-Side Leontief (Population-Weighted Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (Employment-Weighted Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
     }
 
     data['model_order'] = data['plot_method'].map(model_order)
@@ -1133,22 +1133,22 @@ def plot_annual_gdp_impact_comparison():
     rows.extend(_aggregate_loss_rows(
         _demand_leontief_files(),
         _demand_leontief_labels(),
-        'Demand-Side Leontief (Population Shock)'
+        'Demand-Side Leontief (Population-Weighted Shock)'
     ))
     rows.extend(_aggregate_loss_rows(
         _demand_leontief_survey_voll_files(),
         _demand_leontief_survey_voll_labels(),
-        'Demand-Side Leontief (Survey-Based VoLL)'
+        'Demand-Side Leontief (Survey-Based VoLL Shock)'
     ))
     rows.extend(_aggregate_loss_rows(
         _supply_employment_files(),
         _supply_employment_labels(),
-        'Supply-Side Ghosh (% Shock)'
+        'Supply-Side Ghosh (Employment-Weighted Shock)'
     ))
     rows.extend(_aggregate_loss_rows(
         _supply_survey_files(),
         _supply_survey_labels(),
-        'Supply-Side Ghosh (Survey-Based VoLL)'
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)'
     ))
 
     comparison = pd.DataFrame(rows)
@@ -1167,16 +1167,16 @@ def plot_annual_gdp_impact_comparison():
 
     scenario_order = {f'Scenario {i}': i for i in range(1, 8)}
     model_order = {
-        'Demand-Side Leontief (Population Shock)': 0,
-        'Demand-Side Leontief (Survey-Based VoLL)': 1,
-        'Supply-Side Ghosh (% Shock)': 2,
-        'Supply-Side Ghosh (Survey-Based VoLL)': 3,
+        'Demand-Side Leontief (Population-Weighted Shock)': 0,
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 1,
+        'Supply-Side Ghosh (Employment-Weighted Shock)': 2,
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 3,
     }
     label_map = {
-        'Demand-Side Leontief (Population Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
-        'Demand-Side Leontief (Survey-Based VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
-        'Supply-Side Ghosh (% Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
-        'Supply-Side Ghosh (Survey-Based VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
+        'Demand-Side Leontief (Population-Weighted Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (Employment-Weighted Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
     }
 
     comparison['scenario_order'] = comparison['scenario'].map(scenario_order)
@@ -1558,18 +1558,18 @@ def export_manuscript_results_table():
 
     expected_columns = [
         'Scenario',
-        'Demand-Side Leontief (Population Shock)',
-        'Demand-Side Leontief (Survey-Based VoLL)',
-        'Supply-Side Ghosh (% Shock)',
-        'Supply-Side Ghosh (Survey-Based VoLL)',
+        'Demand-Side Leontief (Population-Weighted Shock)',
+        'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)',
     ]
     data = data[expected_columns].copy()
 
     rename_map = {
-        'Demand-Side Leontief (Population Shock)': 'Leontief Demand (Population) [Bn 2026 NZD]',
-        'Demand-Side Leontief (Survey-Based VoLL)': 'Leontief Demand (Survey-Based VoLL) [Bn 2026 NZD]',
-        'Supply-Side Ghosh (% Shock)': 'Ghosh Supply (% Shock) [Bn 2026 NZD]',
-        'Supply-Side Ghosh (Survey-Based VoLL)': 'Ghosh Supply (Survey-Based VoLL) [Bn 2026 NZD]',
+        'Demand-Side Leontief (Population-Weighted Shock)': 'Leontief Demand (Population) [Bn 2026 NZD]',
+        'Demand-Side Leontief (Survey-Based VoLL Shock)': 'Leontief Demand (Survey-Based VoLL) [Bn 2026 NZD]',
+        'Supply-Side Ghosh (Employment-Weighted Shock)': 'Ghosh Supply (% Shock) [Bn 2026 NZD]',
+        'Supply-Side Ghosh (Survey-Based VoLL Shock)': 'Ghosh Supply (Survey-Based VoLL) [Bn 2026 NZD]',
     }
     data = data.rename(columns=rename_map)
 
