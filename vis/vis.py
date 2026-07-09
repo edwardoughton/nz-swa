@@ -58,6 +58,10 @@ METHOD_DEFINITIONS = [
     },
 ]
 
+# Keep GDP price-year alignment with scripts/process.py so loss and GDP are both
+# expressed in 2026 NZD terms.
+GDP_DEFLATOR_2020_TO_2026 = 1.255
+
 def plot_grid_map_panel():
     """
     Create a 1x4 panel plot to show the initial geographic context.
@@ -1098,6 +1102,173 @@ def plot_benefit_cost_ratios():
     plt.savefig(os.path.join(VIS, 'benefit_cost_ratios_scenario3_baseline.png'), dpi=300)
     plt.close()
 
+
+def _load_annual_gdp_2026_million_nzd():
+    """
+    Load annual GDP proxy from national accounts (total value added) and convert
+    to 2026 NZD using the GDP deflator factor.
+    """
+    workbook = os.path.join(
+        DATA_RAW,
+        'national-accounts-input-output-tables-year-ended-march-2020-revised-22-december-2021.xlsx'
+    )
+    if not os.path.exists(workbook):
+        raise FileNotFoundError(f'National accounts workbook not found at {workbook}')
+
+    table = pd.read_excel(workbook, sheet_name='4 Transactions', header=5)
+    total_va_rows = table[table['Unnamed: 0'] == 'Total value added']
+    if total_va_rows.empty:
+        raise ValueError('Could not find "Total value added" row in national accounts workbook')
+
+    total_va_2020 = pd.to_numeric(total_va_rows.iloc[0, 1:110], errors='coerce').fillna(0).sum()
+    total_va_2026 = float(total_va_2020) * GDP_DEFLATOR_2020_TO_2026
+    return float(total_va_2020), total_va_2026
+
+
+def plot_annual_gdp_impact_comparison():
+    """
+    Plot total loss by scenario and method as a share of annual GDP (2026 NZD).
+    """
+    rows = []
+    rows.extend(_aggregate_loss_rows(
+        _demand_leontief_files(),
+        _demand_leontief_labels(),
+        'Demand-Side Leontief (Population Shock)'
+    ))
+    rows.extend(_aggregate_loss_rows(
+        _demand_leontief_survey_voll_files(),
+        _demand_leontief_survey_voll_labels(),
+        'Demand-Side Leontief (Survey-Based VoLL)'
+    ))
+    rows.extend(_aggregate_loss_rows(
+        _supply_employment_files(),
+        _supply_employment_labels(),
+        'Supply-Side Ghosh (% Shock)'
+    ))
+    rows.extend(_aggregate_loss_rows(
+        _supply_survey_files(),
+        _supply_survey_labels(),
+        'Supply-Side Ghosh (Survey-Based VoLL)'
+    ))
+
+    comparison = pd.DataFrame(rows)
+    if comparison.empty:
+        raise ValueError('No result files found for annual GDP impact comparison')
+
+    _, annual_gdp_2026_million = _load_annual_gdp_2026_million_nzd()
+    comparison['total_loss_billion_2026_nzd'] = comparison['direct'] + comparison['indirect']
+    comparison['total_loss_million_2026_nzd'] = comparison['total_loss_billion_2026_nzd'] * 1e3
+    comparison['loss_share_pct_of_annual_gdp'] = (
+        comparison['total_loss_million_2026_nzd'] / annual_gdp_2026_million * 100
+    )
+    comparison['annual_gdp_divided_by_loss'] = (
+        annual_gdp_2026_million / comparison['total_loss_million_2026_nzd']
+    )
+
+    scenario_order = {f'Scenario {i}': i for i in range(1, 8)}
+    model_order = {
+        'Demand-Side Leontief (Population Shock)': 0,
+        'Demand-Side Leontief (Survey-Based VoLL)': 1,
+        'Supply-Side Ghosh (% Shock)': 2,
+        'Supply-Side Ghosh (Survey-Based VoLL)': 3,
+    }
+    label_map = {
+        'Demand-Side Leontief (Population Shock)': 'Demand-Side Leontief (Population-Weighted Shock)',
+        'Demand-Side Leontief (Survey-Based VoLL)': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
+        'Supply-Side Ghosh (% Shock)': 'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'Supply-Side Ghosh (Survey-Based VoLL)': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
+    }
+
+    comparison['scenario_order'] = comparison['scenario'].map(scenario_order)
+    comparison['model_order'] = comparison['model'].map(model_order)
+    comparison = comparison.sort_values(['scenario_order', 'model_order']).reset_index(drop=True)
+
+    n_models = len(model_order)
+    bar_spacing = 1.5
+    group_gap = 1.2
+    group_spacing = n_models * bar_spacing + group_gap
+
+    y = []
+    labels = []
+    for _, row in comparison.iterrows():
+        y.append((row['scenario_order'] - 1) * group_spacing + row['model_order'] * bar_spacing)
+        labels.append(label_map[row['model']])
+
+    vmax = comparison['loss_share_pct_of_annual_gdp'].max()
+    bar_color = '#2f6f8f'
+
+    plt.figure(figsize=(15, 14))
+    plt.barh(y, comparison['loss_share_pct_of_annual_gdp'], color=bar_color)
+
+    x_limit = vmax * 1.25
+    for ypos, (_, row) in zip(y, comparison.iterrows()):
+        plt.text(
+            row['loss_share_pct_of_annual_gdp'] + vmax * 0.01,
+            ypos,
+            f"{row['loss_share_pct_of_annual_gdp']:.2f}%",
+            ha='left',
+            va='center',
+            fontsize=15,
+        )
+
+    group_centers = [
+        (i - 1) * group_spacing + ((n_models - 1) * bar_spacing) / 2
+        for i in range(1, 8)
+    ]
+
+    plt.yticks(y, labels, fontsize=16, linespacing=1.15)
+    plt.xticks(fontsize=16)
+    plt.xlim(0, x_limit)
+    plt.xlabel('Economic Loss as Share of Annual GDP (%)', fontsize=18)
+    plt.title('Economic Impact Relative to Annual GDP by Scenario and Method', fontsize=20)
+    plt.grid(axis='x', linestyle='--', alpha=0.5)
+    plt.gca().invert_yaxis()
+
+    plt.text(
+        0.98,
+        0.97,
+        f'Annual GDP (2026 NZD): ${annual_gdp_2026_million/1e3:,.1f} Bn\\n'
+        'Source: NZ national accounts IO table (Total value added),\\n'
+        f'GDP deflator factor 2020->2026 = {GDP_DEFLATOR_2020_TO_2026}',
+        transform=plt.gca().transAxes,
+        ha='right',
+        va='top',
+        fontsize=12,
+        color='0.2',
+        bbox={
+            'boxstyle': 'square,pad=0.35',
+            'facecolor': 'white',
+            'edgecolor': 'black',
+            'linewidth': 1.0,
+        },
+    )
+
+    for boundary in [(i - 1) * group_spacing - group_gap / 3 for i in range(2, 8)]:
+        plt.axhline(boundary, color='0.85', linewidth=0.8)
+
+    ax = plt.gca()
+    for center, scenario in zip(group_centers, [f'Scenario {i}' for i in range(1, 8)]):
+        ax.text(-0.70, center, scenario, transform=ax.get_yaxis_transform(),
+                ha='right', va='center', fontsize=18)
+
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.45, right=0.96)
+    plt.savefig(os.path.join(VIS, 'annual_gdp_impact_comparison.png'), dpi=300)
+    plt.close()
+
+    export_columns = [
+        'scenario',
+        'model',
+        'total_loss_billion_2026_nzd',
+        'total_loss_million_2026_nzd',
+        'loss_share_pct_of_annual_gdp',
+        'annual_gdp_divided_by_loss',
+    ]
+    comparison[export_columns].to_csv(
+        os.path.join(RESULTS, 'annual_gdp_impact_comparison.csv'),
+        index=False,
+    )
+
 def plot_sector_supply_costs_perc_shock():
     """
     Aggregate scenario results based on the first letter of the 'NZSIOC' column.
@@ -1570,6 +1741,8 @@ if __name__ == "__main__":
     calc_voll_panel_plot()
 
     plot_aggregate_model_cost_comparison()
+
+    plot_annual_gdp_impact_comparison()
 
     plot_benefit_cost_ratios()
 
