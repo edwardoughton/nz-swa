@@ -1,29 +1,29 @@
 Scenario,Method,Direct Loss (Bn 2026 NZD),Indirect Loss (Bn 2026 NZD),Total Loss (Bn 2026 NZD)
 Scenario 1,Demand-Side Leontief (Population-Weighted Shock),1.175109,0.578453,1.753562
 Scenario 1,Demand-Side Leontief (Survey-Based VoLL Shock),1.177284,0.579524,1.756808
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),2.273263,2.125721,4.398984
-Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),1.294242,1.106457,2.400699
+Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),2.273263,1.303231,3.576494
+Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),1.294242,0.911824,2.206067
 Scenario 2,Demand-Side Leontief (Population-Weighted Shock),0.50145,0.246841,0.748291
 Scenario 2,Demand-Side Leontief (Survey-Based VoLL Shock),0.502487,0.247352,0.749838
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),0.953239,0.863121,1.816359
-Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),0.554979,0.4574,1.012379
+Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),0.953239,0.536171,1.48941
+Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),0.554979,0.384722,0.939701
 Scenario 3,Demand-Side Leontief (Population-Weighted Shock),0.498409,0.245345,0.743754
 Scenario 3,Demand-Side Leontief (Survey-Based VoLL Shock),0.511079,0.251581,0.762661
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),0.947304,0.871373,1.818678
-Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),0.539163,0.463729,1.002892
+Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),0.947304,0.535615,1.482919
+Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),0.539163,0.390464,0.929627
 Scenario 4,Demand-Side Leontief (Population-Weighted Shock),0.493036,0.242699,0.735735
 Scenario 4,Demand-Side Leontief (Survey-Based VoLL Shock),0.506355,0.249256,0.755611
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),0.938746,0.863664,1.80241
-Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),0.533093,0.458584,0.991677
+Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),0.938746,0.530463,1.469209
+Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),0.533093,0.386179,0.919272
 Scenario 5,Demand-Side Leontief (Population-Weighted Shock),0.437664,0.215442,0.653107
 Scenario 5,Demand-Side Leontief (Survey-Based VoLL Shock),0.44609,0.21959,0.66568
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),0.839056,0.78384,1.622896
-Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),0.472561,0.410632,0.883193
+Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),0.839056,0.479006,1.318062
+Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),0.472561,0.343348,0.815909
 Scenario 6,Demand-Side Leontief (Population-Weighted Shock),0.224551,0.110537,0.335088
 Scenario 6,Demand-Side Leontief (Survey-Based VoLL Shock),0.228483,0.112472,0.340955
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),0.401663,0.376169,0.777833
-Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),0.23151,0.200802,0.432312
+Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),0.401663,0.230002,0.631666
+Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),0.23151,0.168254,0.399763
 Scenario 7,Demand-Side Leontief (Population-Weighted Shock),0.163872,0.080667,0.244539
 Scenario 7,Demand-Side Leontief (Survey-Based VoLL Shock),0.165166,0.081304,0.246469
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),0.304129,0.284929,0.589059
-Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),0.172628,0.148676,0.321304
+Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),0.304129,0.17361,0.477739
+Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),0.172628,0.122079,0.294707

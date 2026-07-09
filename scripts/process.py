@@ -313,7 +313,7 @@ def process_supply_shocks_employment(iso3, scenario_name, supply_shocks):
     transactions, VA, total_output, _ = _load_io_table_components()
 
     # Compute Ghosh B matrix
-    B_matrix = transactions.div(total_output, axis=1).fillna(0)
+    B_matrix = transactions.div(total_output, axis=0).fillna(0)
     B_np = B_matrix.values
     I = np.eye(B_np.shape[0])
     G_inv = np.linalg.inv(I - B_np.T)
@@ -502,7 +502,7 @@ def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
     transactions, VA, total_output, _ = _load_io_table_components()
 
     # Compute Ghosh inverse
-    B_matrix = transactions.div(total_output, axis=1).fillna(0)
+    B_matrix = transactions.div(total_output, axis=0).fillna(0)
     B_np = B_matrix.values
     I = np.eye(B_np.shape[0])
     G_inv = np.linalg.inv(I - B_np.T)

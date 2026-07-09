@@ -102,96 +102,96 @@ Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_add
 Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,2273.262821,2273.26,0.002821
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,2125.720889,2125.72,0.000889
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,4398.98371,4398.98,0.00371
+Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,1303.230957,1303.23,0.000957
+Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,3576.493779,3576.49,0.003779
 Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,953.238758,953.24,0.001242
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,863.120612,863.12,0.000612
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1816.359371,1816.36,0.000629
+Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,536.170981,536.17,0.000981
+Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1489.40974,1489.41,0.00026
 Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,947.304318,947.3,0.004318
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,871.373402,871.37,0.003402
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1818.67772,1818.68,0.00228
+Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,535.614759,535.61,0.004759
+Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1482.919077,1482.92,0.000923
 Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,938.745986,938.75,0.004014
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,863.664078,863.66,0.004078
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1802.410064,1802.41,6.4e-05
+Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,530.463102,530.46,0.003102
+Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1469.209088,1469.21,0.000912
 Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,839.056164,839.06,0.003836
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,783.839764,783.84,0.000236
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1622.895929,1622.9,0.004071
+Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,479.006029,479.01,0.003971
+Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1318.062193,1318.06,0.002193
 Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,401.663481,401.66,0.003481
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,376.169307,376.17,0.000693
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,777.832788,777.83,0.002788
+Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,230.002474,230.0,0.002474
+Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,631.665955,631.67,0.004045
 Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,304.129425,304.13,0.000575
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,284.929268,284.93,0.000732
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,589.058694,589.06,0.001306
+Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,173.609637,173.61,0.000363
+Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,477.739063,477.74,0.000937
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,1294.24248,1294.24,0.00248
-Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,1106.456521,1106.46,0.003479
-Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,2400.699001,2400.7,0.000999
+Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,911.824361,911.82,0.004361
+Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,2206.066841,2206.07,0.003159
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,554.978993,554.98,0.001007
-Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,457.400114,457.4,0.000114
-Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,1012.379107,1012.38,0.000893
+Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,384.721783,384.72,0.001783
+Scenario 2,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,939.700776,939.7,0.000776
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,539.162956,539.16,0.002956
-Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,463.728782,463.73,0.001218
-Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,1002.891737,1002.89,0.001737
+Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,390.4636,390.46,0.0036
+Scenario 3,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,929.626556,929.63,0.003444
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,533.092717,533.09,0.002717
-Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,458.584103,458.58,0.004103
-Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,991.67682,991.68,0.00318
+Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,386.17939,386.18,0.00061
+Scenario 4,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,919.272107,919.27,0.002107
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,472.560654,472.56,0.000654
-Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,410.632279,410.63,0.002279
-Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,883.192934,883.19,0.002934
+Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,343.348088,343.35,0.001912
+Scenario 5,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,815.908742,815.91,0.001258
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,231.509544,231.51,0.000456
-Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,200.802366,200.8,0.002366
-Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,432.311911,432.31,0.001911
+Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,168.253737,168.25,0.003737
+Scenario 6,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,399.763281,399.76,0.003281
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,172.62792,172.63,0.00208
-Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,148.67568,148.68,0.00432
-Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,321.303599,321.3,0.003599
+Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,122.078763,122.08,0.001237
+Scenario 7,Supply-Side Ghosh (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,294.706683,294.71,0.003317

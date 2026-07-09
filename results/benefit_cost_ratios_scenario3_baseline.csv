@@ -1,29 +1,29 @@
 scenario,scenario_number,method_order,method_id,method,baseline_scenario,mitigation_description,mitigation_cost_million_2026_nzd,baseline_loss_million_2026_nzd,scenario_loss_million_2026_nzd,avoided_loss_million_2026_nzd,benefit_cost_ratio
 Scenario 1,1,0,demand_population,Demand-Side Leontief (Population-Weighted Shock),Scenario 3,No mitigation investment,0.0,743.7538945562776,1753.5617915015582,-1009.8078969452806,
 Scenario 1,1,1,demand_survey_voll,Demand-Side Leontief (Survey-Based VoLL Shock),Scenario 3,No mitigation investment,0.0,762.6605916774897,1756.8081568568468,-994.1475651793571,
-Scenario 1,1,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,No mitigation investment,0.0,1818.6777204106902,4398.983710316092,-2580.3059899054015,
-Scenario 1,1,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,No mitigation investment,0.0,1002.8917371921108,2400.699001129442,-1397.8072639373313,
+Scenario 1,1,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,No mitigation investment,0.0,1482.9190770737866,3576.4937786072815,-2093.5747015334946,
+Scenario 1,1,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,No mitigation investment,0.0,929.6265556143554,2206.066841111362,-1276.4402854970067,
 Scenario 2,2,0,demand_population,Demand-Side Leontief (Population-Weighted Shock),Scenario 3,No mitigation investment,0.0,743.7538945562776,748.2906141663807,-4.536719610103091,
 Scenario 2,2,1,demand_survey_voll,Demand-Side Leontief (Survey-Based VoLL Shock),Scenario 3,No mitigation investment,0.0,762.6605916774897,749.8384043547137,12.822187322776017,
-Scenario 2,2,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,No mitigation investment,0.0,1818.6777204106902,1816.359370754689,2.3183496560011463,
-Scenario 2,2,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,No mitigation investment,0.0,1002.8917371921108,1012.37910730335,-9.487370111239215,
+Scenario 2,2,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,No mitigation investment,0.0,1482.9190770737866,1489.40973982997,-6.490662756183383,
+Scenario 2,2,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,No mitigation investment,0.0,929.6265556143554,939.7007760646235,-10.074220450268058,
 Scenario 3,3,0,demand_population,Demand-Side Leontief (Population-Weighted Shock),Scenario 3,No mitigation investment; BCR baseline,0.0,743.7538945562776,743.7538945562776,0.0,
 Scenario 3,3,1,demand_survey_voll,Demand-Side Leontief (Survey-Based VoLL Shock),Scenario 3,No mitigation investment; BCR baseline,0.0,762.6605916774897,762.6605916774897,0.0,
-Scenario 3,3,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,No mitigation investment; BCR baseline,0.0,1818.6777204106902,1818.6777204106902,0.0,
-Scenario 3,3,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,No mitigation investment; BCR baseline,0.0,1002.8917371921108,1002.8917371921108,0.0,
+Scenario 3,3,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,No mitigation investment; BCR baseline,0.0,1482.9190770737866,1482.9190770737866,0.0,
+Scenario 3,3,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,No mitigation investment; BCR baseline,0.0,929.6265556143554,929.6265556143554,0.0,
 Scenario 4,4,0,demand_population,Demand-Side Leontief (Population-Weighted Shock),Scenario 3,Switching sequence,0.25,743.7538945562776,735.7352905133755,8.018604042902098,32.07441617160839
 Scenario 4,4,1,demand_survey_voll,Demand-Side Leontief (Survey-Based VoLL Shock),Scenario 3,Switching sequence,0.25,762.6605916774897,755.6113451332645,7.049246544225184,28.196986176900737
-Scenario 4,4,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,Switching sequence,0.25,1818.6777204106902,1802.4100641130783,16.267656297611893,65.07062519044757
-Scenario 4,4,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,Switching sequence,0.25,1002.8917371921108,991.6768202022656,11.214916989845165,44.85966795938066
+Scenario 4,4,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,Switching sequence,0.25,1482.9190770737866,1469.2090877569847,13.709989316801966,54.839957267207865
+Scenario 4,4,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,Switching sequence,0.25,929.6265556143554,919.2721067298942,10.354448884461249,41.417795537844995
 Scenario 5,5,0,demand_population,Demand-Side Leontief (Population-Weighted Shock),Scenario 3,Switching sequence and islanding,0.5,743.7538945562776,653.1069166816374,90.64697787464024,181.29395574928049
 Scenario 5,5,1,demand_survey_voll,Demand-Side Leontief (Survey-Based VoLL Shock),Scenario 3,Switching sequence and islanding,0.5,762.6605916774897,665.6801294289503,96.98046224853942,193.96092449707885
-Scenario 5,5,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,Switching sequence and islanding,0.5,1818.6777204106902,1622.895928546277,195.7817918644132,391.5635837288264
-Scenario 5,5,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,Switching sequence and islanding,0.5,1002.8917371921108,883.1929338751723,119.69880331693844,239.39760663387688
+Scenario 5,5,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,Switching sequence and islanding,0.5,1482.9190770737866,1318.0621929471,164.85688412668674,329.7137682533735
+Scenario 5,5,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,Switching sequence and islanding,0.5,929.6265556143554,815.9087419876688,113.71781362668662,227.43562725337324
 Scenario 6,6,0,demand_population,Demand-Side Leontief (Population-Weighted Shock),Scenario 3,"Switching sequence, islanding, and 12 GIC blockers",24.75,743.7538945562776,335.0880817548465,408.6658128014311,16.511750012179036
 Scenario 6,6,1,demand_survey_voll,Demand-Side Leontief (Survey-Based VoLL Shock),Scenario 3,"Switching sequence, islanding, and 12 GIC blockers",24.75,762.6605916774897,340.9554303761398,421.7051613013499,17.03859237581212
-Scenario 6,6,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,"Switching sequence, islanding, and 12 GIC blockers",24.75,1818.6777204106902,777.8327876640801,1040.84493274661,42.05434071703475
-Scenario 6,6,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,"Switching sequence, islanding, and 12 GIC blockers",24.75,1002.8917371921108,432.311910529726,570.5798266623848,23.053730370197364
+Scenario 6,6,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,"Switching sequence, islanding, and 12 GIC blockers",24.75,1482.9190770737866,631.6659550451357,851.253122028651,34.39406553651115
+Scenario 6,6,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,"Switching sequence, islanding, and 12 GIC blockers",24.75,929.6265556143554,399.7632809609016,529.8632746534538,21.408617157715305
 Scenario 7,7,0,demand_population,Demand-Side Leontief (Population-Weighted Shock),Scenario 3,"Switching sequence, islanding, and 34 GIC blockers",68.75,743.7538945562776,244.53914534672924,499.21474920954836,7.261305443047976
 Scenario 7,7,1,demand_survey_voll,Demand-Side Leontief (Survey-Based VoLL Shock),Scenario 3,"Switching sequence, islanding, and 34 GIC blockers",68.75,762.6605916774897,246.46917890440938,516.1914127730804,7.508238731244806
-Scenario 7,7,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,"Switching sequence, islanding, and 34 GIC blockers",68.75,1818.6777204106902,589.0586937337524,1229.6190266769377,17.885367660755456
-Scenario 7,7,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,"Switching sequence, islanding, and 34 GIC blockers",68.75,1002.8917371921108,321.3035991868418,681.588138005269,9.91400928007664
+Scenario 7,7,2,supply_percent_shock,Supply-Side Ghosh (Employment-Weighted Shock),Scenario 3,"Switching sequence, islanding, and 34 GIC blockers",68.75,1482.9190770737866,477.73906261796884,1005.1800144558179,14.620800210266442
+Scenario 7,7,3,supply_customer_class_voll,Supply-Side Ghosh (Survey-Based VoLL Shock),Scenario 3,"Switching sequence, islanding, and 34 GIC blockers",68.75,929.6265556143554,294.70668252798015,634.9198730863752,9.235198153983639
