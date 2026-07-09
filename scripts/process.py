@@ -1,4 +1,4 @@
-"""
+﻿"""
 Estimate GDP losses using a basic input-output model. 
 
 Ed Oughton
@@ -25,22 +25,22 @@ PRICE_YEAR_LABEL = '2026 NZD'
 MODEL_RESULT_DEFINITIONS = [
     {
         'method_id': 'demand_population',
-        'method_label': 'Demand-Side Leontief (Population Shock)',
+        'method_label': 'Demand-Side Leontief (Population-Weighted Shock)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_population_approach.csv',
     },
     {
         'method_id': 'demand_survey_voll',
-        'method_label': 'Demand-Side Leontief (Survey-Based Residential VoLL)',
+        'method_label': 'Demand-Side Leontief (Survey-Based VoLL Shock)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_survey_voll_approach.csv',
     },
     {
         'method_id': 'supply_percent_shock',
-        'method_label': 'Supply-Side Ghosh (% Shock)',
+        'method_label': 'Supply-Side Ghosh (Employment-Weighted Shock)',
         'filename_template': 'gdp_loss_by_sector_scenario{scenario}_employment_approach.csv',
     },
     {
         'method_id': 'supply_customer_class_voll',
-        'method_label': 'Supply-Side Ghosh (Customer-Class Survey VoLL)',
+        'method_label': 'Supply-Side Ghosh (Survey-Based VoLL Shock)',
         'filename_template': 'gdp_loss_by_sector_scenario{scenario}_survey_approach.csv',
     },
 ]
@@ -484,7 +484,7 @@ def get_supply_side_scenario_shocks_survey_voll():
 def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
     """
     Estimates GDP loss using Ghosh model, where input supply_shocks are actual direct
-    economic losses (in millions NZD) per sector — NOT percentage reductions.
+    economic losses (in millions NZD) per sector â€” NOT percentage reductions.
 
     Parameters
     ----------
