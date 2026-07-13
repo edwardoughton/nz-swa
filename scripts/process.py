@@ -1,4 +1,4 @@
-﻿"""
+"""
 Estimate GDP losses using a basic input-output model. 
 
 Ed Oughton
@@ -25,7 +25,7 @@ PRICE_YEAR_LABEL = '2026 NZD'
 MODEL_RESULT_DEFINITIONS = [
     {
         'method_id': 'demand_population',
-        'method_label': 'Demand-Side Leontief (Population-Weighted Shock)',
+        'method_label': 'Demand-Side Leontief (Population Shock)',
         'filename_template': 'demand_side_gdp_loss_by_sector_scenario{scenario}_population_approach.csv',
     },
     {
@@ -35,7 +35,7 @@ MODEL_RESULT_DEFINITIONS = [
     },
     {
         'method_id': 'supply_percent_shock',
-        'method_label': 'Supply-Side Ghosh (Employment-Weighted Shock)',
+        'method_label': 'Supply-Side Ghosh (Employment Shock)',
         'filename_template': 'gdp_loss_by_sector_scenario{scenario}_employment_approach.csv',
     },
     {
@@ -484,7 +484,7 @@ def get_supply_side_scenario_shocks_survey_voll():
 def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
     """
     Estimates GDP loss using Ghosh model, where input supply_shocks are actual direct
-    economic losses (in millions NZD) per sector â€” NOT percentage reductions.
+    economic losses (in millions NZD) per sector — NOT percentage reductions.
 
     Parameters
     ----------
@@ -545,8 +545,7 @@ def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
     )
 
     direct_voll_loss = direct_loss_series.reindex(combined['Description']).fillna(0).reset_index(drop=True)
-    combined['Direct VoLL Loss'] = direct_voll_loss * GDP_DEFLATOR_2020_TO_2026
-    combined['GDP Propagation Difference'] = combined['Loss'] - combined['Direct VoLL Loss']
+    combined['Direct VoLL Loss'] = direct_voll_loss 
 
     # Save sector-level results
     combined.to_csv(os.path.join(RESULTS, f'gdp_loss_by_sector_{scenario_name}.csv'), index=False)
@@ -560,7 +559,6 @@ def process_supply_shocks_with_voll(iso3, scenario_name, supply_shocks):
         f.write(f"Indirect GDP loss: {round(combined['Indirect Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
         f.write(f"Total GDP loss: {round(combined['Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
         f.write(f"Direct Transpower VoLL loss used as shock input: {round(combined['Direct VoLL Loss'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
-        f.write(f"GDP propagation difference: {round(combined['GDP Propagation Difference'].sum(), 2)} million {PRICE_YEAR_LABEL}\n")
 
 
 def process_demand_shocks_population(iso3, scenario_name, population_shock_percent):
@@ -696,21 +694,22 @@ if __name__ == "__main__":
 
     iso3 = 'NZL'
 
-    shocks_supply = get_supply_side_scenario_shocks_employment()
-    for scenario_name, shocks in shocks_supply.items():
-        process_supply_shocks_employment(iso3, scenario_name+'_employment_approach', shocks)
+    # shocks_supply = get_supply_side_scenario_shocks_employment()
+    # for scenario_name, shocks in shocks_supply.items():
+    #     process_supply_shocks_employment(iso3, scenario_name+'_employment_approach', shocks)
 
     shocks_supply_voll = get_supply_side_scenario_shocks_survey_voll()
-    for scenario_name, shocks in shocks_supply_voll.items():
-        process_supply_shocks_with_voll(iso3, scenario_name+'_survey_approach', shocks)
-        #break
+    print([(k, v) for k, v in shocks_supply_voll.items()])
+    # for scenario_name, shocks in shocks_supply_voll.items():
+    #     process_supply_shocks_with_voll(iso3, scenario_name+'_survey_approach', shocks)
+    #     #break
 
-    shocks_demand = get_demand_side_scenario_shocks_population()
-    for scenario_name, shock in shocks_demand.items():
-        process_demand_shocks_population(iso3, scenario_name+'_population_approach', shock)
+    # shocks_demand = get_demand_side_scenario_shocks_population()
+    # for scenario_name, shock in shocks_demand.items():
+    #     process_demand_shocks_population(iso3, scenario_name+'_population_approach', shock)
 
-    shocks_demand_survey = get_demand_side_scenario_shocks_survey_voll()
-    for scenario_name, shock in shocks_demand_survey.items():
-        process_demand_shocks_population(iso3, scenario_name+'_survey_voll_approach', shock)
+    # shocks_demand_survey = get_demand_side_scenario_shocks_survey_voll()
+    # for scenario_name, shock in shocks_demand_survey.items():
+    #     process_demand_shocks_population(iso3, scenario_name+'_survey_voll_approach', shock)
 
-    export_benefit_cost_ratios()
+    # export_benefit_cost_ratios()

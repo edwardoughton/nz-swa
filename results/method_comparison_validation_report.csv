@@ -1,53 +1,53 @@
 Scenario,Method,Check,Status,Value,Expected,Abs Error
-Scenario 1,Demand-Side Leontief (Population-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Population-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Population-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Population-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Demand-Side Leontief (Population-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,1175.108678,1175.11,0.001322
-Scenario 1,Demand-Side Leontief (Population-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,578.453114,578.45,0.003114
-Scenario 1,Demand-Side Leontief (Population-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1753.561792,1753.56,0.001792
-Scenario 2,Demand-Side Leontief (Population-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Population-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Population-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Population-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Demand-Side Leontief (Population-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,501.449563,501.45,0.000437
-Scenario 2,Demand-Side Leontief (Population-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,246.841051,246.84,0.001051
-Scenario 2,Demand-Side Leontief (Population-Weighted Shock),summary_total_matches_data_million_nzd,PASS,748.290614,748.29,0.000614
-Scenario 3,Demand-Side Leontief (Population-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Population-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Population-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Population-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Demand-Side Leontief (Population-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,498.409386,498.41,0.000614
-Scenario 3,Demand-Side Leontief (Population-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,245.344509,245.34,0.004509
-Scenario 3,Demand-Side Leontief (Population-Weighted Shock),summary_total_matches_data_million_nzd,PASS,743.753895,743.75,0.003895
-Scenario 4,Demand-Side Leontief (Population-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Population-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Population-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Population-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Demand-Side Leontief (Population-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,493.035905,493.04,0.004095
-Scenario 4,Demand-Side Leontief (Population-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,242.699386,242.7,0.000614
-Scenario 4,Demand-Side Leontief (Population-Weighted Shock),summary_total_matches_data_million_nzd,PASS,735.735291,735.74,0.004709
-Scenario 5,Demand-Side Leontief (Population-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Population-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Population-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Population-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Demand-Side Leontief (Population-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,437.66442,437.66,0.00442
-Scenario 5,Demand-Side Leontief (Population-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,215.442496,215.44,0.002496
-Scenario 5,Demand-Side Leontief (Population-Weighted Shock),summary_total_matches_data_million_nzd,PASS,653.106917,653.11,0.003083
-Scenario 6,Demand-Side Leontief (Population-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Population-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Population-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Population-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Demand-Side Leontief (Population-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,224.55149,224.55,0.00149
-Scenario 6,Demand-Side Leontief (Population-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,110.536592,110.54,0.003408
-Scenario 6,Demand-Side Leontief (Population-Weighted Shock),summary_total_matches_data_million_nzd,PASS,335.088082,335.09,0.001918
-Scenario 7,Demand-Side Leontief (Population-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Population-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Population-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Population-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Demand-Side Leontief (Population-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,163.872225,163.87,0.002225
-Scenario 7,Demand-Side Leontief (Population-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,80.666921,80.67,0.003079
-Scenario 7,Demand-Side Leontief (Population-Weighted Shock),summary_total_matches_data_million_nzd,PASS,244.539145,244.54,0.000855
+Scenario 1,Demand-Side Leontief (Population Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Population Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Population Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Population Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,1175.108678,1175.11,0.001322
+Scenario 1,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,578.453114,578.45,0.003114
+Scenario 1,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,1753.561792,1753.56,0.001792
+Scenario 2,Demand-Side Leontief (Population Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Population Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Population Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Population Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,501.449563,501.45,0.000437
+Scenario 2,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,246.841051,246.84,0.001051
+Scenario 2,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,748.290614,748.29,0.000614
+Scenario 3,Demand-Side Leontief (Population Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Population Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Population Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Population Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,498.409386,498.41,0.000614
+Scenario 3,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,245.344509,245.34,0.004509
+Scenario 3,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,743.753895,743.75,0.003895
+Scenario 4,Demand-Side Leontief (Population Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Population Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Population Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Population Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,493.035905,493.04,0.004095
+Scenario 4,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,242.699386,242.7,0.000614
+Scenario 4,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,735.735291,735.74,0.004709
+Scenario 5,Demand-Side Leontief (Population Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Population Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Population Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Population Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,437.66442,437.66,0.00442
+Scenario 5,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,215.442496,215.44,0.002496
+Scenario 5,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,653.106917,653.11,0.003083
+Scenario 6,Demand-Side Leontief (Population Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Population Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Population Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Population Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,224.55149,224.55,0.00149
+Scenario 6,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,110.536592,110.54,0.003408
+Scenario 6,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,335.088082,335.09,0.001918
+Scenario 7,Demand-Side Leontief (Population Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Population Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Population Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Population Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Demand-Side Leontief (Population Shock),summary_direct_matches_data_million_nzd,PASS,163.872225,163.87,0.002225
+Scenario 7,Demand-Side Leontief (Population Shock),summary_indirect_matches_data_million_nzd,PASS,80.666921,80.67,0.003079
+Scenario 7,Demand-Side Leontief (Population Shock),summary_total_matches_data_million_nzd,PASS,244.539145,244.54,0.000855
 Scenario 1,Demand-Side Leontief (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Demand-Side Leontief (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Demand-Side Leontief (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
@@ -97,55 +97,55 @@ Scenario 7,Demand-Side Leontief (Survey-Based VoLL Shock),per_sector_total_consi
 Scenario 7,Demand-Side Leontief (Survey-Based VoLL Shock),summary_direct_matches_data_million_nzd,PASS,165.165592,165.17,0.004408
 Scenario 7,Demand-Side Leontief (Survey-Based VoLL Shock),summary_indirect_matches_data_million_nzd,PASS,81.303587,81.3,0.003587
 Scenario 7,Demand-Side Leontief (Survey-Based VoLL Shock),summary_total_matches_data_million_nzd,PASS,246.469179,246.47,0.000821
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,2273.262821,2273.26,0.002821
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,1303.230957,1303.23,0.000957
-Scenario 1,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,3576.493779,3576.49,0.003779
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,953.238758,953.24,0.001242
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,536.170981,536.17,0.000981
-Scenario 2,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1489.40974,1489.41,0.00026
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,947.304318,947.3,0.004318
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,535.614759,535.61,0.004759
-Scenario 3,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1482.919077,1482.92,0.000923
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,938.745986,938.75,0.004014
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,530.463102,530.46,0.003102
-Scenario 4,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1469.209088,1469.21,0.000912
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,839.056164,839.06,0.003836
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,479.006029,479.01,0.003971
-Scenario 5,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,1318.062193,1318.06,0.002193
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,401.663481,401.66,0.003481
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,230.002474,230.0,0.002474
-Scenario 6,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,631.665955,631.67,0.004045
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_direct_matches_data_million_nzd,PASS,304.129425,304.13,0.000575
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_indirect_matches_data_million_nzd,PASS,173.609637,173.61,0.000363
-Scenario 7,Supply-Side Ghosh (Employment-Weighted Shock),summary_total_matches_data_million_nzd,PASS,477.739063,477.74,0.000937
+Scenario 1,Supply-Side Ghosh (Employment Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Supply-Side Ghosh (Employment Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Supply-Side Ghosh (Employment Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Supply-Side Ghosh (Employment Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 1,Supply-Side Ghosh (Employment Shock),summary_direct_matches_data_million_nzd,PASS,2273.262821,2273.26,0.002821
+Scenario 1,Supply-Side Ghosh (Employment Shock),summary_indirect_matches_data_million_nzd,PASS,1303.230957,1303.23,0.000957
+Scenario 1,Supply-Side Ghosh (Employment Shock),summary_total_matches_data_million_nzd,PASS,3576.493779,3576.49,0.003779
+Scenario 2,Supply-Side Ghosh (Employment Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Supply-Side Ghosh (Employment Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Supply-Side Ghosh (Employment Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Supply-Side Ghosh (Employment Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 2,Supply-Side Ghosh (Employment Shock),summary_direct_matches_data_million_nzd,PASS,953.238758,953.24,0.001242
+Scenario 2,Supply-Side Ghosh (Employment Shock),summary_indirect_matches_data_million_nzd,PASS,536.170981,536.17,0.000981
+Scenario 2,Supply-Side Ghosh (Employment Shock),summary_total_matches_data_million_nzd,PASS,1489.40974,1489.41,0.00026
+Scenario 3,Supply-Side Ghosh (Employment Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Supply-Side Ghosh (Employment Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Supply-Side Ghosh (Employment Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Supply-Side Ghosh (Employment Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 3,Supply-Side Ghosh (Employment Shock),summary_direct_matches_data_million_nzd,PASS,947.304318,947.3,0.004318
+Scenario 3,Supply-Side Ghosh (Employment Shock),summary_indirect_matches_data_million_nzd,PASS,535.614759,535.61,0.004759
+Scenario 3,Supply-Side Ghosh (Employment Shock),summary_total_matches_data_million_nzd,PASS,1482.919077,1482.92,0.000923
+Scenario 4,Supply-Side Ghosh (Employment Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Supply-Side Ghosh (Employment Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Supply-Side Ghosh (Employment Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Supply-Side Ghosh (Employment Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 4,Supply-Side Ghosh (Employment Shock),summary_direct_matches_data_million_nzd,PASS,938.745986,938.75,0.004014
+Scenario 4,Supply-Side Ghosh (Employment Shock),summary_indirect_matches_data_million_nzd,PASS,530.463102,530.46,0.003102
+Scenario 4,Supply-Side Ghosh (Employment Shock),summary_total_matches_data_million_nzd,PASS,1469.209088,1469.21,0.000912
+Scenario 5,Supply-Side Ghosh (Employment Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Supply-Side Ghosh (Employment Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Supply-Side Ghosh (Employment Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Supply-Side Ghosh (Employment Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 5,Supply-Side Ghosh (Employment Shock),summary_direct_matches_data_million_nzd,PASS,839.056164,839.06,0.003836
+Scenario 5,Supply-Side Ghosh (Employment Shock),summary_indirect_matches_data_million_nzd,PASS,479.006029,479.01,0.003971
+Scenario 5,Supply-Side Ghosh (Employment Shock),summary_total_matches_data_million_nzd,PASS,1318.062193,1318.06,0.002193
+Scenario 6,Supply-Side Ghosh (Employment Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Supply-Side Ghosh (Employment Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Supply-Side Ghosh (Employment Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Supply-Side Ghosh (Employment Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 6,Supply-Side Ghosh (Employment Shock),summary_direct_matches_data_million_nzd,PASS,401.663481,401.66,0.003481
+Scenario 6,Supply-Side Ghosh (Employment Shock),summary_indirect_matches_data_million_nzd,PASS,230.002474,230.0,0.002474
+Scenario 6,Supply-Side Ghosh (Employment Shock),summary_total_matches_data_million_nzd,PASS,631.665955,631.67,0.004045
+Scenario 7,Supply-Side Ghosh (Employment Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Supply-Side Ghosh (Employment Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Supply-Side Ghosh (Employment Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Supply-Side Ghosh (Employment Shock),per_sector_total_consistency_million_nzd,PASS,0.0,<= 0.05,0.0
+Scenario 7,Supply-Side Ghosh (Employment Shock),summary_direct_matches_data_million_nzd,PASS,304.129425,304.13,0.000575
+Scenario 7,Supply-Side Ghosh (Employment Shock),summary_indirect_matches_data_million_nzd,PASS,173.609637,173.61,0.000363
+Scenario 7,Supply-Side Ghosh (Employment Shock),summary_total_matches_data_million_nzd,PASS,477.739063,477.74,0.000937
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),output_loss_is_baseline_minus_post_shock_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),gdp_loss_uses_value_added_output_ratio_million_nzd,PASS,0.0,<= 0.05,0.0
 Scenario 1,Supply-Side Ghosh (Survey-Based VoLL Shock),indirect_loss_is_total_gdp_minus_direct_gdp_million_nzd,PASS,0.0,<= 0.05,0.0
